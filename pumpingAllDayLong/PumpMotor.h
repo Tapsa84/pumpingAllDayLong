@@ -7,16 +7,18 @@ class PumpMotor {
 
 
     private:
-         int pin1;
-         int pin2;
-         int pin3;
+         int pwm_pin;
+         int direction_pin = 1;
+         int enable_pin = 0;
+
+         int _setPwm = 0;
 
          public:
 
-         PumpMotor(int pin1, int pin2, int pin3);
+         PumpMotor(int pwm_pin, int direction_pin, int enable_pin);
          PumpMotor();
-         void setPin1(int pin1);
-         int getPin1(void);
+         void setPwm(int _setPwm);
+         int getPwm(void);
 
          
 };

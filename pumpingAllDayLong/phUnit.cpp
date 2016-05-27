@@ -30,10 +30,17 @@ float phUnit::getTemp(void) {
 }
 
 float phUnit::getpH(void) {
-
+  this->serial->print("R");
+  this->serial->print("\r");
+  if (serial->available() > 0) {
+    this->from_pH_meter = this->serial->readStringUntil('r');
+    this->pH_value = from_pH_meter.toFloat();
+    return this->pH_value;
+  }
 }
 
 bool phUnit::isCalibrated(void) {
+  
   if (this->_isCalibrated){
     return true;
   }
@@ -44,6 +51,6 @@ bool phUnit::isCalibrated(void) {
 }
 
 void phUnit::setCalibMode(CalibMode *CalMode) {
-
+  this->CalMode = CalMode;
 }
 

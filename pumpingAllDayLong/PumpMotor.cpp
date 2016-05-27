@@ -1,21 +1,21 @@
 #include "Arduino.h"
 #include "PumpMotor.h"
 
-PumpMotor::PumpMotor(int pin1, int pin2, int pin3) {
-  this->pin1 = pin1;
-  this->pin2 = pin2;
-  this->pin3 = pin3;
+PumpMotor::PumpMotor(int pwm_pin, int direction_pin, int enable_pin) {
+  this->pwm_pin = pwm_pin;
+  this->direction_pin = direction_pin;
+  this->enable_pin = enable_pin;
 }
 
 PumpMotor::PumpMotor(){
 
 }
 
-void PumpMotor::setPin1(int pin1) {
-  this->pin1 = pin1;
+void PumpMotor::setPwm(int _setPwm) {
+  this->_setPwm = _setPwm;
 }
 
-int PumpMotor::getPin1(void) {
-  return pin1;
+int PumpMotor::getPwm(void) {
+  return _setPwm;
 }
 

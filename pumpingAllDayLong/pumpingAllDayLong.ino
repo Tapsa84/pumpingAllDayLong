@@ -3,7 +3,23 @@
 #include "phUnit.h"
 #include "HardwareSerial.h"
 
-PumpMotor *pumpA = new PumpMotor(10, 11, 12);
+#define pA_pwm 13
+#define pA_dir 24
+#define pA_ena 25
+
+#define pB_pwm 12
+#define pB_dir 26
+#define pB_ena 27
+
+#define pC_pwm 11
+#define pC_dir 28
+#define pC_ena 29
+
+#define pD_pwm 10
+#define pD_dir 30
+#define pD_ena 31
+
+PumpMotor *pumpA = new PumpMotor(pA_pwm_pin, pA_direction_pin, );
 PumpMotor *pumpB = new PumpMotor(13, 14, 15);
 PumpMotor *pumpC = new PumpMotor(16, 17, 18);
 PumpMotor *pumpD = new PumpMotor(19, 20, 21);
