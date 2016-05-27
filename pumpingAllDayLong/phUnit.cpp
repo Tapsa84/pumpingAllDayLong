@@ -6,7 +6,44 @@ phUnit::phUnit(HardwareSerial *serial) {
   this->serial = serial;
 }
 
-phUnit::phUnit(){
+phUnit::phUnit() {
+
+}
+
+void phUnit::setTemp(float _setTemp) {
+  this->_setTemp = _setTemp;
+  this->serial->print("T,");
+  this->serial->print(_setTemp);
+  this->serial->print('\r');
+  this->getTemp();
+}
+
+float phUnit::getTemp(void) {
+  this->serial->print("T,");
+  this->serial->print('\r');
+  if (serial->available() > 0) {
+    this->from_pH_meter = this->serial->readStringUntil('\r');
+    this->_getTemp = from_pH_meter.toFloat();
+    Serial.println(_setTemp);
+    return _getTemp;
+  }
+}
+
+float phUnit::getpH(void) {
+
+}
+
+bool phUnit::isCalibrated(void) {
+  if (this->_isCalibrated){
+    return true;
+  }
+  else {
+    return false;
+    }
   
+}
+
+void phUnit::setCalibMode(CalibMode *CalMode) {
+
 }
 
