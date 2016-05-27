@@ -5,12 +5,12 @@
 
 
 
-PumpMotor pumpA(10,11,12);
-PumpMotor pumpB(13,14,15);
+PumpMotor *pumpA = new PumpMotor(10,11,12);
+PumpMotor *pumpB = new PumpMotor(13,14,15);
 
 
 //phUnit phUnit2(&Serial2);
-phUnit phUnit1(&Serial1);
+phUnit *phUnit1 = new phUnit(&Serial1);
 
 
 UnitController Unit1(pumpA,pumpB,phUnit1);
@@ -18,7 +18,7 @@ UnitController Unit1(pumpA,pumpB,phUnit1);
 void setup() {
   // put your setup code here, to run once:
   int pin1;
-  Unit1._phUnit.serial->begin(9600);
+  Unit1._phUnit->serial->begin(9600);
 //Unit1.pumpA.setPin1(9);
 //pin1 = Unit1.pumpA.getPin1();
 //Serial.begin(9600);

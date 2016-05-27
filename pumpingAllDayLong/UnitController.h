@@ -13,12 +13,12 @@ class UnitController {
 
 
   public:
-    PumpMotor pumpA;
-    PumpMotor pumpB;
-    phUnit _phUnit;
+    PumpMotor *pumpA;
+    PumpMotor *pumpB;
+    phUnit *_phUnit;
     
     
-    UnitController(PumpMotor pumpA, PumpMotor pumpB, phUnit _phUnit);
+    UnitController(PumpMotor *pumpA, PumpMotor *pumpB, phUnit *_phUnit);
 
 
 };
