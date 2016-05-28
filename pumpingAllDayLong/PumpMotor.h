@@ -16,7 +16,7 @@ class PumpMotor {
     RunMode rMode;
 
 
-    float pump_time;
+    float pump_time = 5000;
     float pump_flow;
 
     float y1;
