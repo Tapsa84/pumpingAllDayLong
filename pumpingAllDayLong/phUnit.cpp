@@ -40,6 +40,9 @@ float phUnit::getpH(void) {
 }
 
 <<<<<<< HEAD
+<<<<<<< HEAD
+=======
+>>>>>>> refs/remotes/origin/pumpingAllDayLong
 void phUnit::Calibrate(CalibMode *CalMode){
    this->CalMode = CalMode;   
 }
@@ -47,6 +50,7 @@ void phUnit::Calibrate(CalibMode *CalMode){
 void phUnit::setCalibMode(CalibMode *CalMode) {
   this->CalMode = CalMode;
 }
+<<<<<<< HEAD
 bool phUnit::isCalibrated(void) {
   
   return this->_isCalibrated;
@@ -54,6 +58,8 @@ bool phUnit::isCalibrated(void) {
 }
 
 =======
+=======
+>>>>>>> refs/remotes/origin/pumpingAllDayLong
 bool phUnit::isCalibrated(void) {
   
   if (this->_isCalibrated){
@@ -65,8 +71,11 @@ bool phUnit::isCalibrated(void) {
   
 }
 
+<<<<<<< HEAD
 void phUnit::setCalibMode(CalibMode *CalMode) {
   this->CalMode = CalMode;
 }
+>>>>>>> refs/remotes/origin/pumpingAllDayLong
+=======
 >>>>>>> refs/remotes/origin/pumpingAllDayLong
 

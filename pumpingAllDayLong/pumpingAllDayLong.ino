@@ -20,16 +20,22 @@
 #define pD_ena 31
 
 <<<<<<< HEAD
+<<<<<<< HEAD
+=======
+>>>>>>> refs/remotes/origin/pumpingAllDayLong
 PumpMotor *pumpA = new PumpMotor(pA_pwm, pA_dir, pA_ena );
 PumpMotor *pumpB = new PumpMotor(pB_pwm, pB_dir, pB_ena );
 PumpMotor *pumpC = new PumpMotor(pC_pwm, pC_dir, pC_ena );
 PumpMotor *pumpD = new PumpMotor(pD_pwm, pD_dir, pD_ena );
 
+<<<<<<< HEAD
 =======
 PumpMotor *pumpA = new PumpMotor(pA_pwm_pin, pA_direction_pin, );
 PumpMotor *pumpB = new PumpMotor(13, 14, 15);
 PumpMotor *pumpC = new PumpMotor(16, 17, 18);
 PumpMotor *pumpD = new PumpMotor(19, 20, 21);
+>>>>>>> refs/remotes/origin/pumpingAllDayLong
+=======
 >>>>>>> refs/remotes/origin/pumpingAllDayLong
 phUnit *phUnit1 = new phUnit(&Serial1);
 phUnit *phUnit2 = new phUnit(&Serial2);
@@ -40,12 +46,15 @@ UnitController *Unit2 = new UnitController(pumpC, pumpD, phUnit2);
 
 
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
 
 
 
 
 
+>>>>>>> refs/remotes/origin/pumpingAllDayLong
+=======
 >>>>>>> refs/remotes/origin/pumpingAllDayLong
 void setup() {
   Serial.begin(9600);
@@ -60,6 +69,7 @@ void setup() {
   int pin1;
   //Unit1->_phUnit->serial->begin(9600);
 <<<<<<< HEAD
+<<<<<<< HEAD
   
   Serial.print(pin1);
   delay(1000);
@@ -71,6 +81,13 @@ void setup() {
   delay(1000);
   Unit1->pumpA->setPin1(9);
   pin1 = Unit1->pumpA->getPin1();
+>>>>>>> refs/remotes/origin/pumpingAllDayLong
+=======
+  
+  Serial.print(pin1);
+  delay(1000);
+  
+  
 >>>>>>> refs/remotes/origin/pumpingAllDayLong
   Serial.print(pin1);
 

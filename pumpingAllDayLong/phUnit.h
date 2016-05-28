@@ -30,8 +30,12 @@ class phUnit {
     float getpH();
     bool isCalibrated(void);
 <<<<<<< HEAD
+<<<<<<< HEAD
     void Calibrate(CalibMode *CalMode);
 =======
+>>>>>>> refs/remotes/origin/pumpingAllDayLong
+=======
+    void Calibrate(CalibMode *CalMode);
 >>>>>>> refs/remotes/origin/pumpingAllDayLong
     void setCalibMode(CalibMode *CalMode);
     
