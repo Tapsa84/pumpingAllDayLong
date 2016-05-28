@@ -1,6 +1,7 @@
 #include "Arduino.h"
 #include "PumpMotor.h"
 
+<<<<<<< HEAD
 PumpMotor::PumpMotor(int pwm_pin, int dir_pin, int ena_pin) {
   this->pwm_pin = pwm_pin;
   this->dir_pin = dir_pin;
@@ -22,12 +23,27 @@ void PumpMotor::getSettings(int _setPwm, int _setDir, int rMode, float pump_flow
   else {
     this->isCalibrated = false;
   }
+=======
+PumpMotor::PumpMotor(int pwm_pin, int direction_pin, int enable_pin) {
+  this->pwm_pin = pwm_pin;
+  this->direction_pin = direction_pin;
+  this->enable_pin = enable_pin;
+}
+
+PumpMotor::PumpMotor(){
+
+}
+
+void PumpMotor::setPwm(int _setPwm) {
+  this->_setPwm = _setPwm;
+>>>>>>> refs/remotes/origin/pumpingAllDayLong
 }
 
 int PumpMotor::getPwm(void) {
   return _setPwm;
 }
 
+<<<<<<< HEAD
 void PumpMotor::setPwm(int _setPwm) {
   this->_setPwm = _setPwm;
 }
@@ -91,3 +107,5 @@ bool PumpMotor::oncePerTime() {
   }
   return false;
 }
+=======
+>>>>>>> refs/remotes/origin/pumpingAllDayLong

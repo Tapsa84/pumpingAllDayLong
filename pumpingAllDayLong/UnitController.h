@@ -8,6 +8,7 @@
 class UnitController {
 
   private:
+<<<<<<< HEAD
     PumpMotor *pumpA;
     PumpMotor *pumpB;
     phUnit *_phUnit;
@@ -17,12 +18,23 @@ class UnitController {
   
   public:
     
+=======
+
+  
+  public:
+    PumpMotor *pumpA;
+    PumpMotor *pumpB;
+    phUnit *_phUnit;
+>>>>>>> refs/remotes/origin/pumpingAllDayLong
     
     
     UnitController(PumpMotor *pumpA, PumpMotor *pumpB, phUnit *_phUnit);
     UnitController();
+<<<<<<< HEAD
     void tick();
     
+=======
+>>>>>>> refs/remotes/origin/pumpingAllDayLong
 
 
 };

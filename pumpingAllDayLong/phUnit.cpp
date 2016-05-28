@@ -39,6 +39,7 @@ float phUnit::getpH(void) {
   }
 }
 
+<<<<<<< HEAD
 void phUnit::Calibrate(CalibMode *CalMode){
    this->CalMode = CalMode;   
 }
@@ -52,4 +53,20 @@ bool phUnit::isCalibrated(void) {
   
 }
 
+=======
+bool phUnit::isCalibrated(void) {
+  
+  if (this->_isCalibrated){
+    return true;
+  }
+  else {
+    return false;
+    }
+  
+}
+
+void phUnit::setCalibMode(CalibMode *CalMode) {
+  this->CalMode = CalMode;
+}
+>>>>>>> refs/remotes/origin/pumpingAllDayLong
 
