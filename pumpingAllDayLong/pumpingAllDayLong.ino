@@ -19,20 +19,16 @@
 #define pD_dir 30
 #define pD_ena 31
 
-PumpMotor *pumpA = new PumpMotor(pA_pwm_pin, pA_direction_pin, );
-PumpMotor *pumpB = new PumpMotor(13, 14, 15);
-PumpMotor *pumpC = new PumpMotor(16, 17, 18);
-PumpMotor *pumpD = new PumpMotor(19, 20, 21);
+PumpMotor *pumpA = new PumpMotor(pA_pwm, pA_dir, pA_ena );
+PumpMotor *pumpB = new PumpMotor(pB_pwm, pB_dir, pB_ena );
+PumpMotor *pumpC = new PumpMotor(pC_pwm, pC_dir, pC_ena );
+PumpMotor *pumpD = new PumpMotor(pD_pwm, pD_dir, pD_ena );
+
 phUnit *phUnit1 = new phUnit(&Serial1);
 phUnit *phUnit2 = new phUnit(&Serial2);
 
 UnitController *Unit1 = new UnitController(pumpA, pumpB, phUnit1);
 UnitController *Unit2 = new UnitController(pumpC, pumpD, phUnit2);
-
-
-
-
-
 
 
 
@@ -48,11 +44,11 @@ void setup() {
   // put your setup code here, to run once:
   int pin1;
   //Unit1->_phUnit->serial->begin(9600);
-  pin1 = Unit1->pumpA->getPin1();
+  
   Serial.print(pin1);
   delay(1000);
-  Unit1->pumpA->setPin1(9);
-  pin1 = Unit1->pumpA->getPin1();
+  
+  
   Serial.print(pin1);
 
 

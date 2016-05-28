@@ -29,6 +29,7 @@ class phUnit {
     float getTemp(void);
     float getpH();
     bool isCalibrated(void);
+    void Calibrate(CalibMode *CalMode);
     void setCalibMode(CalibMode *CalMode);
     
 

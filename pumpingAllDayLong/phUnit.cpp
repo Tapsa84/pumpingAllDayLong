@@ -39,6 +39,13 @@ float phUnit::getpH(void) {
   }
 }
 
+void phUnit::Calibrate(CalibMode *CalMode){
+   this->CalMode = CalMode;   
+}
+
+void phUnit::setCalibMode(CalibMode *CalMode) {
+  this->CalMode = CalMode;
+}
 bool phUnit::isCalibrated(void) {
   
   if (this->_isCalibrated){
@@ -50,7 +57,4 @@ bool phUnit::isCalibrated(void) {
   
 }
 
-void phUnit::setCalibMode(CalibMode *CalMode) {
-  this->CalMode = CalMode;
-}
 
