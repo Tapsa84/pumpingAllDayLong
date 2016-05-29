@@ -19,84 +19,115 @@
 #define pD_dir 30
 #define pD_ena 31
 
-<<<<<<< HEAD
-<<<<<<< HEAD
-=======
->>>>>>> refs/remotes/origin/pumpingAllDayLong
-PumpMotor *pumpA = new PumpMotor(pA_pwm, pA_dir, pA_ena );
-PumpMotor *pumpB = new PumpMotor(pB_pwm, pB_dir, pB_ena );
-PumpMotor *pumpC = new PumpMotor(pC_pwm, pC_dir, pC_ena );
-PumpMotor *pumpD = new PumpMotor(pD_pwm, pD_dir, pD_ena );
 
-<<<<<<< HEAD
-=======
-PumpMotor *pumpA = new PumpMotor(pA_pwm_pin, pA_direction_pin, );
-PumpMotor *pumpB = new PumpMotor(13, 14, 15);
-PumpMotor *pumpC = new PumpMotor(16, 17, 18);
-PumpMotor *pumpD = new PumpMotor(19, 20, 21);
->>>>>>> refs/remotes/origin/pumpingAllDayLong
-=======
->>>>>>> refs/remotes/origin/pumpingAllDayLong
+
+
+PumpMotor *pumpA = new PumpMotor(pA_pwm, pA_dir, pA_ena);
+PumpMotor *pumpB = new PumpMotor(pB_pwm, pB_dir, pB_ena);
+//PumpMotor *pumpC = new PumpMotor(pC_pwm, pC_dir, pC_ena);
+//PumpMotor *pumpD = new PumpMotor(pD_pwm, pD_dir, pD_ena);
+
+
+
+
 phUnit *phUnit1 = new phUnit(&Serial1);
-phUnit *phUnit2 = new phUnit(&Serial2);
+//phUnit *phUnit2 = new phUnit(&Serial2);
 
 UnitController *Unit1 = new UnitController(pumpA, pumpB, phUnit1);
-UnitController *Unit2 = new UnitController(pumpC, pumpD, phUnit2);
+//UnitController *Unit2 = new UnitController(pumpC, pumpD, phUnit2);
 
+int lastPass = 0;
+const int sec10 = 1UL * 1;
 
+String inputString = "";         // a string to hold incoming data
+boolean stringComplete = false;  // whether the string is complete
 
-<<<<<<< HEAD
-<<<<<<< HEAD
-=======
-
-
-
-
-
->>>>>>> refs/remotes/origin/pumpingAllDayLong
-=======
->>>>>>> refs/remotes/origin/pumpingAllDayLong
 void setup() {
+
+  pinMode(pA_pwm, OUTPUT); //u1 pA:n pwm ulostulo
+  pinMode(pB_pwm, OUTPUT); //u1 pB:n pwm ulostulo
+  pinMode(pA_dir, OUTPUT); //u1 pA:n pyörimissuunta
+  pinMode(pB_dir, OUTPUT); //u1 pB:n pyörimissuunta
+  pinMode(pA_ena, OUTPUT); //pin 26 on u1 pA:n kanavan käynnistys
+  pinMode(pB_ena, OUTPUT); //pin 26 on u1 pA:n kanavan käynnistys
+
+
+
+
   Serial.begin(9600);
   delay(1000);
-  Serial.print("JEE");
+  Serial.println("JEE");
   delay(1000);
 
+  Unit1->pumpA->getSettings(1, 5, 10, 20);
+  Unit1->pumpB->getSettings(2, 10, 10, 20);
+  Unit1->start();
 
 
 
-  // put your setup code here, to run once:
-  int pin1;
-  //Unit1->_phUnit->serial->begin(9600);
-<<<<<<< HEAD
-<<<<<<< HEAD
-  
-  Serial.print(pin1);
-  delay(1000);
-  
-  
-=======
-  pin1 = Unit1->pumpA->getPin1();
-  Serial.print(pin1);
-  delay(1000);
-  Unit1->pumpA->setPin1(9);
-  pin1 = Unit1->pumpA->getPin1();
->>>>>>> refs/remotes/origin/pumpingAllDayLong
-=======
-  
-  Serial.print(pin1);
-  delay(1000);
-  
-  
->>>>>>> refs/remotes/origin/pumpingAllDayLong
-  Serial.print(pin1);
 
 
 
+
+  if (Unit1->pumpA->isOn()) {
+    Serial.println("pumpA is on");
+  }
+  if (Unit1->pumpB->isOn()) {
+    Serial.println("pumpB is on");
+  }
 
 }
 
 void loop() {
   // put your main code here, to run repeatedly:
+  Unit1->tick();
 
+  if (stringComplete) {
+    Unit1->dummy_pH = inputString.toFloat();
+    inputString = "";
+    stringComplete = false;
+
+  }
+  /*
+    if (oncePer10Sec()) {
+
+      Serial.println(Unit1->desired_pH);
+
+      if (Unit1->pumpA->isOn()) {
+        Serial.println("pumpA is on");
+      }
+      else {
+        Serial.println("pumpA is off");
+      }
+
+      if (Unit1->pumpB->isOn()) {
+        Serial.println("pumpB is on");
+      }
+      else {
+        Serial.println("pumpB is off");
+      }
+    }
+
+    //if (Unit1->pumpB->isOn() && Unit1->pumpB->oncePerTime()) {
+    //  if (Unit1->pumpB->isOn()) {
+    //  Serial.println("pumpB is on");
+    // }
+    // }
+  */
 }
+
+void serialEvent() {
+  while (Serial.available()) {
+    inputString = Serial.readStringUntil('\n');
+    stringComplete = true;
+  }
+}
+
+bool oncePer10Sec() {
+  if (millis() > lastPass + sec10) {
+    lastPass = millis();
+    return true;
+  }
+  return false;
+}
+

@@ -8,33 +8,37 @@
 class UnitController {
 
   private:
-<<<<<<< HEAD
-    PumpMotor *pumpA;
-    PumpMotor *pumpB;
-    phUnit *_phUnit;
+
+    
     int lastPassA = 0;
     int lastPassB = 0;
     
-  
-  public:
-    
-=======
+    int stall_time = 1000UL;
+    int lastPass = 0;
 
+    
+    
   
   public:
+    float desired_pH =7;
+    float dummy_pH = 6;
     PumpMotor *pumpA;
     PumpMotor *pumpB;
     phUnit *_phUnit;
->>>>>>> refs/remotes/origin/pumpingAllDayLong
+    enum pHdirection {up, down};
+    pHdirection pH_dir = up;
+    
+    
     
     
     UnitController(PumpMotor *pumpA, PumpMotor *pumpB, phUnit *_phUnit);
     UnitController();
-<<<<<<< HEAD
+    bool timeStall();
+    bool calCheck();
+    void start();
     void tick();
-    
-=======
->>>>>>> refs/remotes/origin/pumpingAllDayLong
+    float getDummy_pH(void);
+
 
 
 };

@@ -11,7 +11,7 @@ class phUnit {
     float pH_value;
     float _getTemp;
     float _setTemp;
-    bool _isCalibrated = "false";
+    bool _isCalibrated = false;
     String from_pH_meter = "";
     String from_host = "";
     enum CalibMode {hi, low};
@@ -28,15 +28,10 @@ class phUnit {
     void setTemp(float _setTemp);
     float getTemp(void);
     float getpH();
+    
     bool isCalibrated(void);
-<<<<<<< HEAD
-<<<<<<< HEAD
+
     void Calibrate(CalibMode *CalMode);
-=======
->>>>>>> refs/remotes/origin/pumpingAllDayLong
-=======
-    void Calibrate(CalibMode *CalMode);
->>>>>>> refs/remotes/origin/pumpingAllDayLong
     void setCalibMode(CalibMode *CalMode);
     
 

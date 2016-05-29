@@ -1,8 +1,7 @@
 #include "Arduino.h"
 #include "PumpMotor.h"
 
-<<<<<<< HEAD
-<<<<<<< HEAD
+
 PumpMotor::PumpMotor(int pwm_pin, int dir_pin, int ena_pin) {
   this->pwm_pin = pwm_pin;
   this->dir_pin = dir_pin;
@@ -13,30 +12,26 @@ PumpMotor::PumpMotor() {
 
 }
 
-void PumpMotor::getSettings(int _setPwm, int _setDir, int rMode, float pump_flow, float y1, float y2) {
-  this->_setPwm = _setPwm;
-  this->_setDir = _setDir;
+void PumpMotor::getSettings(int rMode, float pump_flow, float y1, float y2) {
+  
   if (y1 && y2) {
     this->y1 = y1;
     this->y2 = y2;
     this->calflow();
+    switch (rMode) {
+      case 1:
+      this->runMode = rMode;
+      case 2:
+      this->runMode = rMode;
+    }
   }
   else {
     this->isCalibrated = false;
   }
-=======
-PumpMotor::PumpMotor(int pwm_pin, int direction_pin, int enable_pin) {
-=======
-PumpMotor::PumpMotor(int pwm_pin, int dir_pin, int ena_pin) {
->>>>>>> refs/remotes/origin/pumpingAllDayLong
-  this->pwm_pin = pwm_pin;
-  this->dir_pin = dir_pin;
-  this->ena_pin = ena_pin;
 }
 
-PumpMotor::PumpMotor(){
 
-}
+
 
 int PumpMotor::getPwm(void) {
   return _setPwm;
@@ -44,57 +39,21 @@ int PumpMotor::getPwm(void) {
 
 void PumpMotor::setPwm(int _setPwm) {
   this->_setPwm = _setPwm;
->>>>>>> refs/remotes/origin/pumpingAllDayLong
+
 }
 
 void PumpMotor::set_direction(int new_dir) {
   this->_setDir = new_dir;
 }
 
-void PumpMotor::setRunMode(RunMode *rMode){
-  this->rMode = rMode;
-  
-}
 
 void PumpMotor::on() {
-  
+  Serial.println("pump is on");
   this->isRunning = true;
   analogWrite(this->ena_pin, 1);
   analogWrite(this->dir_pin, _setDir);
   analogWrite(this->pwm_pin, _setPwm);
   
-}
-
-void  PumpMotor::off(){
-  this->isRunning = false;
-  analogWrite(this->ena_pin, 0);
-  analogWrite(this->pwm_pin, 0);  
-}
-
-bool isOn(void) {
-  return isRunning;
-}
-
-<<<<<<< HEAD
-void PumpMotor::setPwm(int _setPwm) {
-  this->_setPwm = _setPwm;
-}
-
-void PumpMotor::set_direction(int new_dir) {
-  this->_setDir = new_dir;
-}
-
-void PumpMotor::setRunMode() {
-  this->rMode = rMode;
-
-}
-
-void PumpMotor::on() {
-
-  this->isRunning = true;
-  analogWrite(this->ena_pin, 1);
-  analogWrite(this->dir_pin, _setDir);
-  analogWrite(this->pwm_pin, _setPwm);
 
 }
 
@@ -102,42 +61,61 @@ void  PumpMotor::off() {
   this->isRunning = false;
   analogWrite(this->ena_pin, 0);
   analogWrite(this->pwm_pin, 0);
+  Serial.println("pump is off");
 }
 
-bool PumpMotor::isOn() {
+bool PumpMotor::isOn(void) {
+  
   return this->isRunning;
+  
 }
+
+void PumpMotor::setRunMode() {
+  this->rMode = rMode;
+}
+
+
 
 void PumpMotor::toggle() {
-  if (this->rMode == Continous) {
-    return;
-  }
-  if (this->rMode == Dosing) {
+  if (this->isOn()) {
+    //Serial.println("pump off");
     this->off();
+  } 
+  else {
+    //Serial.println("pump on");
+    this->on();
   }
-}
+    
+    
+  }
+
 
 void PumpMotor::calibrate() {
   this->off();
+}
+
+bool PumpMotor::isCalib() {
+  return this->isCalibrated;
+}
 
 
-} void PumpMotor::calflow() {
+ void PumpMotor::calflow() {
   this->slope = (y2 - y1) / (220 - 20);
   this->yintercept = this->y1 - (this->slope * 20);
   this->_setPwm = (this->pump_flow - this->yintercept) / slope;
   this->isCalibrated = true;
 }
 
-void PumpMotor::setPumpTime(float pump_time) {
+void PumpMotor::setPumpTime(int pump_time) {
   this->pump_time = pump_time;
 }
 
 bool PumpMotor::oncePerTime() {
-  if(millis() > lastPass + this->pump_time) {
+  
+  if (millis() > this->lastPass + this->pump_time) {
     this->lastPass = millis();
     return true;
   }
   return false;
 }
-=======
->>>>>>> refs/remotes/origin/pumpingAllDayLong
+
