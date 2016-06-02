@@ -2,6 +2,7 @@
 #include "PumpMotor.h"
 #include "phUnit.h"
 #include "HardwareSerial.h"
+#include <Arduino.h>
 
 #define pA_pwm 13
 #define pA_dir 24
@@ -51,23 +52,10 @@ void setup() {
   pinMode(pA_ena, OUTPUT); //pin 26 on u1 pA:n kanavan käynnistys
   pinMode(pB_ena, OUTPUT); //pin 26 on u1 pA:n kanavan käynnistys
 
-
-
-
   Serial.begin(9600);
-  delay(1000);
-  Serial.println("JEE");
-  delay(1000);
-
   Unit1->pumpA->getSettings(1, 5, 10, 20);
   Unit1->pumpB->getSettings(2, 10, 10, 20);
   Unit1->start();
-
-
-
-
-
-
 
   if (Unit1->pumpA->isOn()) {
     Serial.println("pumpA is on");
@@ -86,34 +74,7 @@ void loop() {
     Unit1->dummy_pH = inputString.toFloat();
     inputString = "";
     stringComplete = false;
-
   }
-  /*
-    if (oncePer10Sec()) {
-
-      Serial.println(Unit1->desired_pH);
-
-      if (Unit1->pumpA->isOn()) {
-        Serial.println("pumpA is on");
-      }
-      else {
-        Serial.println("pumpA is off");
-      }
-
-      if (Unit1->pumpB->isOn()) {
-        Serial.println("pumpB is on");
-      }
-      else {
-        Serial.println("pumpB is off");
-      }
-    }
-
-    //if (Unit1->pumpB->isOn() && Unit1->pumpB->oncePerTime()) {
-    //  if (Unit1->pumpB->isOn()) {
-    //  Serial.println("pumpB is on");
-    // }
-    // }
-  */
 }
 
 void serialEvent() {

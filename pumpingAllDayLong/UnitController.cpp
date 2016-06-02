@@ -4,11 +4,6 @@
 #include "PumpMotor.h"
 #include "HardwareSerial.h"
 
-
-
-
-
-
 UnitController::UnitController(PumpMotor *pumpA, PumpMotor *pumpB, phUnit *_phUnit) {
   this->pumpA = pumpA;
   this->pumpB = pumpB;
@@ -20,8 +15,7 @@ UnitController::UnitController() {
 
 }
 
-bool UnitController::timeStall() {
-
+bool UnitController::oncePerTimeStall() {
   if (millis() > this->lastPass + stall_time) {
     this->lastPass = millis();
     return true;
@@ -49,46 +43,33 @@ float UnitController::getDummy_pH(void) {
 }
 
 void UnitController::tick() {
-
-
-  this->getDummy_pH();
-
   if (this->pH_dir == up) {
-    if (this->pumpB->isOn()) {
-      if (this->dummy_pH < this->desired_pH - 0.1) {
-        if (this->pumpB->oncePerTime()) {
-          this->lastPass = millis();
-          this->lastPassA = millis();
-          this->pumpB->pump_time = this->pumpB->pump_time *1.1;
-          this->pumpB->toggle();
-          Serial.println("pH under desired value, adding more pump time");
-          Serial.println(this->pumpB->pump_time);
-          
-        }
+    bool turnPumpBOff = this->pumpB->isOn() && this->pumpB->oncePerTime();
+    if (turnPumpBOff) {
+      this->lastPass = millis();
+      this->lastPassA = millis();
+      this->pumpB->off();
+      bool phTooLow = this->dummy_pH < this->desired_pH - 0.1;
+      bool phTooHigh = this->dummy_pH > this->desired_pH + 0.1;
+
+      if (phTooLow) {
+        Serial.println("pH under desired value, adding more pump time");
+        this->pumpB->pump_time = this->pumpB->pump_time * 1.1;
       }
 
-      if (this->dummy_pH > this->desired_pH + 0.1) {
-        if (this->pumpB->oncePerTime()) {
-          this->lastPass = millis();
-          this->lastPassA = millis();
-          this->pumpB->pump_time = this->pumpB->pump_time *0.9;
-          this->pumpB->toggle();
-          Serial.println("pH over desired value, subtracting pump time");
-          Serial.println(this->pumpB->pump_time);
-        }
+      if (phTooHigh) {
+        Serial.println("pH over desired value, subtracting pump time");
+        this->pumpB->pump_time = this->pumpB->pump_time * 0.9;
       }
+      Serial.println(this->pumpB->pump_time);
     }
 
-    if (!this->pumpB->isOn()) {
-      if (this->timeStall()) {
-        Serial.println(millis() - this->lastPassA);
-        Serial.println("Waiting 1 second to equiblirate");
-        //if (this->dummy_pH < this->desired_pH - 0.1) {
-          this->pumpB->toggle();
-       // }
+    bool turnPumpBOn = !this->pumpB->isOn() && this->timeStall();
 
-      }
-
+    if (turnPumpBOn) {
+      Serial.println(millis() - this->lastPassA);
+      Serial.println("Waiting 1 second to equiblirate");
+      this->pumpB->toggle();
     }
   }
 

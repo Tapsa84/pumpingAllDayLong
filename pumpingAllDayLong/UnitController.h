@@ -8,17 +8,10 @@
 class UnitController {
 
   private:
-
-    
-    int lastPassA = 0;
-    int lastPassB = 0;
-    
     int stall_time = 1000UL;
     int lastPass = 0;
+    int lastPassA = 0;
 
-    
-    
-  
   public:
     float desired_pH =7;
     float dummy_pH = 6;
@@ -27,13 +20,10 @@ class UnitController {
     phUnit *_phUnit;
     enum pHdirection {up, down};
     pHdirection pH_dir = up;
-    
-    
-    
-    
+
     UnitController(PumpMotor *pumpA, PumpMotor *pumpB, phUnit *_phUnit);
     UnitController();
-    bool timeStall();
+    bool oncePerTimeStall();
     bool calCheck();
     void start();
     void tick();
