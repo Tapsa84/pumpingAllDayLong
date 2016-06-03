@@ -10,10 +10,14 @@ class PumpMotor {
     int pwm_pin;
     int dir_pin;
     int ena_pin;
-    bool isRunning = false;
-    bool isCalibrated = false;
+    boolean isRunning = false;
+    boolean isCalibrated = false;
     int runMode;
+    boolean cmd_received = false;
+    String cmd = "";
 
+   
+    
 
 
 
@@ -28,12 +32,23 @@ class PumpMotor {
     int _setPwm = 0;
     int _setDir = 1;
     int lastPass = 0;
+    int lastPassA = 0;
 
   public:
 
-    int pump_time = 1000L;
+    String input_cal = "";
+
+    
+
+    int pump_time = 1000UL;
     enum RunMode {Continous, Dosing, Custom};
-    RunMode rMode;
+    RunMode rMode = Continous;
+    
+    enum Calibration_Status {air_done,pump60sec_1,pump60sec_2,init};
+//    enum Calibration_Status {init = 1; pump
+    Calibration_Status calibration_status = init;
+    
+
     PumpMotor(int pwm_pin, int dir_pin, int ena_pin);
     PumpMotor();
 
@@ -51,8 +66,12 @@ class PumpMotor {
     void calflow();
     bool isCalib();
     bool oncePerTime();
+    bool oncePerTime(int _time);
+    bool getOk();
+    bool getOk(int pumptime);
 
 
 };
 
 #endif
+

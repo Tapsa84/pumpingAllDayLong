@@ -36,98 +36,205 @@ phUnit *phUnit1 = new phUnit(&Serial1);
 UnitController *Unit1 = new UnitController(pumpA, pumpB, phUnit1);
 //UnitController *Unit2 = new UnitController(pumpC, pumpD, phUnit2);
 
-int lastPass = 0;
-const int sec10 = 1UL * 1;
+String input_data = "";
+String input_cmd = "";
+String input_value = "";
+boolean input_data_done = false;
 
-String inputString = "";         // a string to hold incoming data
-boolean stringComplete = false;  // whether the string is complete
+int i = 5;
 
 void setup() {
 
-  pinMode(pA_pwm, OUTPUT); //u1 pA:n pwm ulostulo
-  pinMode(pB_pwm, OUTPUT); //u1 pB:n pwm ulostulo
-  pinMode(pA_dir, OUTPUT); //u1 pA:n pyörimissuunta
-  pinMode(pB_dir, OUTPUT); //u1 pB:n pyörimissuunta
-  pinMode(pA_ena, OUTPUT); //pin 26 on u1 pA:n kanavan käynnistys
-  pinMode(pB_ena, OUTPUT); //pin 26 on u1 pA:n kanavan käynnistys
-
-
-
 
   Serial.begin(9600);
-  delay(1000);
-  Serial.println("JEE");
-  delay(1000);
+  SerialUSB.begin(9600);
+  //while(!SerialUSB);
+  
+  
+  pinMode(pA_pwm, OUTPUT); //u1 pA:n pwm ulostulo
+  pinMode(pB_pwm, OUTPUT); //u1 pB:n pwm ulostulo
+  pinMode(pA_dir, OUTPUT); //u1 pA:n pyÃ¶rimissuunta
+  pinMode(pB_dir, OUTPUT); //u1 pB:n pyÃ¶rimissuunta
+  pinMode(pA_ena, OUTPUT); //pin 26 on u1 pA:n kanavan kÃ¤ynnistys
+  pinMode(pB_ena, OUTPUT); //pin 26 on u1 pA:n kanavan kÃ¤ynnistys
+  
 
-  Unit1->pumpA->getSettings(1, 5, 10, 20);
-  Unit1->pumpB->getSettings(2, 10, 10, 20);
-  Unit1->start();
 
 
 
+  Unit1->pumpA->getSettings(1,5,10,20);
+  Unit1->pumpB->getSettings(2,5,10,20);
+  
+  delay(500);
+ 
+  SerialUSB.println("hyvin menee");
 
+  
 
-
-
-  if (Unit1->pumpA->isOn()) {
-    Serial.println("pumpA is on");
-  }
-  if (Unit1->pumpB->isOn()) {
-    Serial.println("pumpB is on");
-  }
-
+  
 }
 
 void loop() {
   // put your main code here, to run repeatedly:
-  Unit1->tick();
 
-  if (stringComplete) {
-    Unit1->dummy_pH = inputString.toFloat();
-    inputString = "";
-    stringComplete = false;
+  
+ //if(Unit1->pumpB->rMode = Unit1->pumpB->RunMode::Dosing) {
+ // SerialUSB.println(i);
+ //}
+  
+ //Unit1->tick();
+  
+  
+  if(Unit1->pumpA->rMode == Unit1->pumpB->rMode)
+  {
+    SerialUSB.println("sama moodi pumpuilla");
+    delay(1000);
+  }
+  
+  
+  serialEventUSB();
+  
+  if (input_data_done) {
+
+    //Serial.print(input_data);
+    commandParse();
+    input_data = "";
+//    input_cal = "";
+    input_cmd = "";
+    input_value = "";
+    input_data_done = false;
+
 
   }
-  /*
-    if (oncePer10Sec()) {
+}
 
-      Serial.println(Unit1->desired_pH);
 
-      if (Unit1->pumpA->isOn()) {
-        Serial.println("pumpA is on");
-      }
-      else {
-        Serial.println("pumpA is off");
-      }
 
-      if (Unit1->pumpB->isOn()) {
-        Serial.println("pumpB is on");
+boolean commandParse() {
+
+  
+  int semicolon = input_data.indexOf(':');
+  int lastchar = input_data.indexOf('\n');
+ 
+  int index = 0;
+  
+  for (index; index < semicolon; index++) {
+    input_cmd += input_data.charAt(index);
+    
+  }
+
+  index = semicolon + 1;
+  
+  for(index; index < lastchar ;index++) {
+    
+    input_value += input_data.charAt(index);
+  }
+  
+  //Serial.println(input_cmd);
+  //Serial.println(input_value);
+
+  if (input_cmd == "ID") {
+    Serial.println("DS_pH_sys_1");
+    SerialUSB.println("DS_pH_sys_1:1");
+  }
+  
+  if (input_cmd == "pA") 
+  {
+    
+    Unit1->pumpA->input_cal = input_value;
+    if(input_value == "is_cal")
+    {
+      
+      if(Unit1->pumpA->isCalib())
+      {
+        SerialUSB.println("pA_isCalib:1");
       }
-      else {
-        Serial.println("pumpB is off");
+      else 
+      {
+        SerialUSB.println("pA_isCalib:0");
       }
     }
+    if(input_value == "cal")
+    {
+      Unit1->pumpA->calibrate();
+    }
+  }
 
-    //if (Unit1->pumpB->isOn() && Unit1->pumpB->oncePerTime()) {
-    //  if (Unit1->pumpB->isOn()) {
-    //  Serial.println("pumpB is on");
-    // }
-    // }
-  */
+  if (input_cmd == "pB") {
+    if(input_value == "is_cal"){
+      
+      if(Unit1->pumpB->isCalib()){
+        SerialUSB.println("pB_isCalib:1");
+      }
+      else {
+        SerialUSB.println("pB_isCalib:0");
+      }
+    }
+  }
+
+  if (input_cmd == "pH_1") {
+    if(input_value == "is_cal"){
+      
+      if(Unit1->_phUnit->isCalibrated()){
+        SerialUSB.println("pH_1_is_cal:1");
+      }
+      else {
+        SerialUSB.println("pH_1_is_cal:10");
+      }
+    }
+  }
+}
+
+void serialEventUSB() {
+
+  while (SerialUSB.available()) {
+
+    char inChar = (char)SerialUSB.read();
+    input_data += inChar;
+    if (inChar == '\n') 
+    {
+      input_data_done = true;
+    }
+  }
 }
 
 void serialEvent() {
+
   while (Serial.available()) {
-    inputString = Serial.readStringUntil('\n');
-    stringComplete = true;
+
+    char inChar = (char)Serial.read();
+    input_data += inChar;
+    if (inChar == '\n') {
+      input_data_done = true;
+    }
   }
 }
 
-bool oncePer10Sec() {
-  if (millis() > lastPass + sec10) {
-    lastPass = millis();
-    return true;
-  }
-  return false;
-}
+
+union Unit_Settings {
+  struct {
+    float desired_pH;
+    float y1;
+    float y2;
+    int pumpA_flow;
+    int pumpB_flow;
+    int calibmode;
+
+
+  };
+};
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 

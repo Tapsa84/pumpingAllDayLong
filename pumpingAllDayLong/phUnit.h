@@ -11,7 +11,7 @@ class phUnit {
     float pH_value;
     float _getTemp;
     float _setTemp;
-    bool _isCalibrated = false;
+    boolean _isCalibrated = true;
     String from_pH_meter = "";
     String from_host = "";
     enum CalibMode {hi, low};
@@ -39,3 +39,4 @@ class phUnit {
 
 };
 #endif
+
