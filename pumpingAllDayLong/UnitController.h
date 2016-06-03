@@ -25,15 +25,13 @@ class UnitController {
     Controller_state controller_state = on;
 
     phUnit *_phUnit;
-    enum pHdirection {up, down};
+   
     
     float desired_pH =7;
     float dummy_pH = 8;
     PumpMotor *pumpA;
     PumpMotor *pumpB;
 
-    
-    pHdirection pH_dir = down;
     
     
     
@@ -46,7 +44,7 @@ class UnitController {
 
     UnitController(PumpMotor *pumpA, PumpMotor *pumpB, phUnit *_phUnit);
     UnitController();
-    bool oncePerTimeStall();
+    bool timeStall();
     bool calCheck();
     void start();
     void tick();

@@ -15,7 +15,7 @@ UnitController::UnitController() {
 
 }
 
-bool UnitController::oncePerTimeStall() {
+bool UnitController::timeStall() {
   if (millis() > this->lastPass + stall_time) {
     this->lastPass = millis();
     return true;
@@ -148,7 +148,7 @@ void UnitController::adjust_pH(PumpMotor *pump) {
 
 
 void UnitController::tick() {
-<<<<<<< HEAD
+
 
 
   if (this->controller_state == on)
