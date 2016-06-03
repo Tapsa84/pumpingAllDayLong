@@ -44,16 +44,19 @@ float UnitController::getDummy_pH(void) {
 
 
 void UnitController::adjust_pH(PumpMotor *pump) {
-  
+
+  // eli iffin sisällöt tänne.
+  bool phTooHigh = this->dummy_pH < this->desired_pH - 0.1;
+  bool phTooLow = this->dummy_pH > this->desired_pH + 0.1;
+
   if (this->pH_dir == up)
   {
-    
     if (pump->rMode == pump->RunMode::Dosing)
     {
       //SerialUSB.println("Here I am! UP");
       if (pump->isOn())
       {
-        if (this->dummy_pH < this->desired_pH - 0.1) {
+        if (phTooHigh) {
           if (pump->oncePerTime()) {
             this->lastPass = millis();
             this->lastPassA = millis();
@@ -65,7 +68,7 @@ void UnitController::adjust_pH(PumpMotor *pump) {
           }
         }
 
-        if (this->dummy_pH > this->desired_pH + 0.1) {
+        if (phTooLow) {
           if (pump->oncePerTime()) {
             this->lastPass = millis();
             this->lastPassA = millis();
