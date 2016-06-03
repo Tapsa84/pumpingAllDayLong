@@ -21,8 +21,18 @@ void PumpMotor::getSettings(int rMode, float pump_flow, float y1, float y2) {
     switch (rMode) {
       case 1:
         this->rMode = Continous;
+        
+        if(this->rMode == Continous){
+          SerialUSB.println("Mode is Continous");        
+        }
+        break;
+        
       case 2:
         this->rMode = Dosing;
+        if(this->rMode == Dosing){
+          SerialUSB.println("Mode is Dosing");
+        }
+        break;
     }
   }
   else {

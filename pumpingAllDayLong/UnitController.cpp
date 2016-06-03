@@ -47,9 +47,10 @@ void UnitController::adjust_pH(PumpMotor *pump) {
   
   if (this->pH_dir == up)
   {
-    SerialUSB.println("Here I am! UP");
+    
     if (pump->rMode == pump->RunMode::Dosing)
     {
+      //SerialUSB.println("Here I am! UP");
       if (pump->isOn())
       {
         if (this->dummy_pH < this->desired_pH - 0.1) {
@@ -58,8 +59,8 @@ void UnitController::adjust_pH(PumpMotor *pump) {
             this->lastPassA = millis();
             pump->pump_time = pump->pump_time * 1.1;
             pump->toggle();
-            Serial.println("pH under desired value, adding more pump time");
-            Serial.println(pump->pump_time);
+            SerialUSB.println("pH under desired value, adding more pump time");
+            SerialUSB.println(pump->pump_time);
 
           }
         }
@@ -70,16 +71,16 @@ void UnitController::adjust_pH(PumpMotor *pump) {
             this->lastPassA = millis();
             pump->pump_time = pump->pump_time * 0.9;
             pump->toggle();
-            Serial.println("pH over desired value, subtracting pump time");
-            Serial.println(pump->pump_time);
+            SerialUSB.println("pH over desired value, subtracting pump time");
+            SerialUSB.println(pump->pump_time);
           }
         }
       }
 
       if (!pump->isOn()) {
         if (this->timeStall()) {
-          Serial.println(millis() - this->lastPassA);
-          Serial.println("Waiting 1 second to equiblirate");
+          SerialUSB.println(millis() - this->lastPassA);
+          SerialUSB.println("Waiting 1 second to equiblirate");
           //if (this->dummy_pH < this->desired_pH - 0.1) {
           pump->toggle();
           // }
@@ -156,7 +157,7 @@ void UnitController::tick() {
     if (this->calCheck())
     {
       this->adjust_pH(this->pumpA);
-      //this->adjust_pH(this->pumpB);
+      this->adjust_pH(this->pumpB);
     }
     else 
     {
