@@ -4,11 +4,6 @@
 #include "PumpMotor.h"
 #include "HardwareSerial.h"
 
-
-
-
-
-
 UnitController::UnitController(PumpMotor *pumpA, PumpMotor *pumpB, phUnit *_phUnit) {
   this->pumpA = pumpA;
   this->pumpB = pumpB;
@@ -20,8 +15,7 @@ UnitController::UnitController() {
 
 }
 
-bool UnitController::timeStall() {
-
+bool UnitController::oncePerTimeStall() {
   if (millis() > this->lastPass + stall_time) {
     this->lastPass = millis();
     return true;
@@ -154,6 +148,7 @@ void UnitController::adjust_pH(PumpMotor *pump) {
 
 
 void UnitController::tick() {
+<<<<<<< HEAD
 
 
   if (this->controller_state == on)
@@ -247,9 +242,30 @@ void UnitController::tick() {
           Serial.println("pH over desired value, subtracting pump time");
           Serial.println(this->pumpB->pump_time);
         }
+=======
+  if (this->pH_dir == up) {
+    bool turnPumpBOff = this->pumpB->isOn() && this->pumpB->oncePerTime();
+    if (turnPumpBOff) {
+      this->lastPass = millis();
+      this->lastPassA = millis();
+      this->pumpB->off();
+      bool phTooLow = this->dummy_pH < this->desired_pH - 0.1;
+      bool phTooHigh = this->dummy_pH > this->desired_pH + 0.1;
+
+      if (phTooLow) {
+        Serial.println("pH under desired value, adding more pump time");
+        this->pumpB->pump_time = this->pumpB->pump_time * 1.1;
       }
+
+      if (phTooHigh) {
+        Serial.println("pH over desired value, subtracting pump time");
+        this->pumpB->pump_time = this->pumpB->pump_time * 0.9;
+>>>>>>> origin/master
+      }
+      Serial.println(this->pumpB->pump_time);
     }
 
+<<<<<<< HEAD
     if (!this->pumpB->isOn()) {
       if (this->timeStall()) {
         Serial.println(millis() - this->lastPassA);
@@ -259,7 +275,14 @@ void UnitController::tick() {
         // }
 
       }
+=======
+    bool turnPumpBOn = !this->pumpB->isOn() && this->timeStall();
+>>>>>>> origin/master
 
+    if (turnPumpBOn) {
+      Serial.println(millis() - this->lastPassA);
+      Serial.println("Waiting 1 second to equiblirate");
+      this->pumpB->toggle();
     }
     }
     }

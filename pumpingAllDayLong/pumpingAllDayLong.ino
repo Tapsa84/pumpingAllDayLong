@@ -2,6 +2,7 @@
 #include "PumpMotor.h"
 #include "phUnit.h"
 #include "HardwareSerial.h"
+#include <Arduino.h>
 
 #define pA_pwm 13
 #define pA_dir 24
@@ -59,6 +60,7 @@ void setup() {
   pinMode(pB_ena, OUTPUT); //pin 26 on u1 pA:n kanavan kÃ¤ynnistys
   
 
+<<<<<<< HEAD
 
 
 
@@ -105,10 +107,23 @@ void loop() {
     input_data_done = false;
 
 
+=======
+  Serial.begin(9600);
+  Unit1->pumpA->getSettings(1, 5, 10, 20);
+  Unit1->pumpB->getSettings(2, 10, 10, 20);
+  Unit1->start();
+
+  if (Unit1->pumpA->isOn()) {
+    Serial.println("pumpA is on");
+  }
+  if (Unit1->pumpB->isOn()) {
+    Serial.println("pumpB is on");
+>>>>>>> origin/master
   }
 }
 
 
+<<<<<<< HEAD
 
 boolean commandParse() {
 
@@ -196,6 +211,13 @@ void serialEventUSB() {
       input_data_done = true;
     }
   }
+=======
+  if (stringComplete) {
+    Unit1->dummy_pH = inputString.toFloat();
+    inputString = "";
+    stringComplete = false;
+  }
+>>>>>>> origin/master
 }
 
 void serialEvent() {

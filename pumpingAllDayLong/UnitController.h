@@ -8,17 +8,17 @@
 class UnitController {
 
   private:
-
-    
-    int lastPassA = 0;
-    int lastPassB = 0;
-    
     int stall_time = 1000UL;
     int lastPass = 0;
+<<<<<<< HEAD
     
     
     
   
+=======
+    int lastPassA = 0;
+
+>>>>>>> origin/master
   public:
     
     enum Controller_state {on, off, cal_pumpA, cal_pumpB, cal_pH};
@@ -31,15 +31,22 @@ class UnitController {
     float dummy_pH = 8;
     PumpMotor *pumpA;
     PumpMotor *pumpB;
+<<<<<<< HEAD
     
     pHdirection pH_dir = down;
     
     
     
     
+=======
+    phUnit *_phUnit;
+    enum pHdirection {up, down};
+    pHdirection pH_dir = up;
+
+>>>>>>> origin/master
     UnitController(PumpMotor *pumpA, PumpMotor *pumpB, phUnit *_phUnit);
     UnitController();
-    bool timeStall();
+    bool oncePerTimeStall();
     bool calCheck();
     void start();
     void tick();
