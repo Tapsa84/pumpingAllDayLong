@@ -8,18 +8,13 @@ PumpMotor::PumpMotor(int pwm_pin, int dir_pin, int ena_pin) {
   this->ena_pin = ena_pin;
 }
 
-PumpMotor::PumpMotor() {
 
-}
+void PumpMotor::setSettings(Pump_Settings *pump_settings) {
 
-void PumpMotor::getSettings(int rMode, float pump_flow, float y1, float y2) {
+  this->pump_settings = pump_settings;
 
-  if (y1 && y2) {
-    this->y1 = y1;
-    this->y2 = y2;
-    this->calflow();
-    switch (rMode) {
-      case 1:
+  switch (this->pump_settings->rMode) {
+      case 0:
         this->rMode = Continous;
         
         if(this->rMode == Continous){
@@ -27,16 +22,27 @@ void PumpMotor::getSettings(int rMode, float pump_flow, float y1, float y2) {
         }
         break;
         
-      case 2:
+      case 1:
         this->rMode = Dosing;
         if(this->rMode == Dosing){
           SerialUSB.println("Mode is Dosing");
         }
         break;
     }
+  
+  if (this->pump_settings->y1 != 0 && this->pump_settings->y2 !=0) {
+    this->calflow();    
   }
   else {
     this->isCalibrated = false;
+  }
+
+  switch (this->pump_settings->_setDir) {
+    case 0:
+      this->_setDir = _setDir;
+      break;
+    case 1:
+      this->_setDir = _setDir;
   }
 }
 
@@ -53,7 +59,7 @@ void PumpMotor::setPwm(int _setPwm) {
 }
 
 void PumpMotor::set_direction(int new_dir) {
-  this->_setDir = new_dir;
+  this->pump_settings->_setDir = new_dir;
 }
 
 
@@ -71,7 +77,7 @@ void PumpMotor::on() {
 
   if (this->isRunning == true)
   {
-    if (this->_setDir == 1)
+    if (this->pump_settings->_setDir == 1)
     {
       analogWrite(this->ena_pin, 1);
       analogWrite(this->dir_pin, 0);
@@ -92,10 +98,6 @@ void  PumpMotor::off() {
 
 bool PumpMotor::isOn(void) {
   return this->isRunning;
-}
-
-void PumpMotor::setRunMode() {
-  this->rMode = rMode;
 }
 
 
@@ -216,9 +218,9 @@ bool PumpMotor::isCalib() {
 
 
 void PumpMotor::calflow() {
-  this->slope = (y2 - y1) / (220 - 20);
-  this->yintercept = this->y1 - (this->slope * 20);
-  this->_setPwm = (this->pump_flow - this->yintercept) / slope;
+  this->slope = (this->pump_settings->y2 - this->pump_settings->y1) / (220 - 20);
+  this->yintercept = this->pump_settings->y1 - (this->slope * 20);
+  this->_setPwm = (this->pump_settings->pump_flow - this->yintercept) / slope;
   this->isCalibrated = true;
 }
 

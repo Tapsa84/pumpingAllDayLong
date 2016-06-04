@@ -3,6 +3,16 @@
 #define PumpMotor_h
 
 
+struct Pump_Settings {
+ 
+      float y1 = 0;
+      float y2 = 0;  
+      int pump_flow = 5;
+      int rMode = 0;
+      int _setDir = 0;
+
+};
+
 class PumpMotor {
 
 
@@ -12,30 +22,21 @@ class PumpMotor {
     int ena_pin;
     boolean isRunning = false;
     boolean isCalibrated = false;
-    int runMode;
-    boolean cmd_received = false;
-    String cmd = "";
-
-   
-    
-
-
-
-
-    float pump_flow;
-
+    int runMode; 
+    float pump_flow;  
     float y1;
     float y2;
     float slope;
     float yintercept;
 
     int _setPwm = 0;
-    int _setDir = 1;
+    int _setDir = 0;
     int lastPass = 0;
     int lastPassA = 0;
 
   public:
 
+    Pump_Settings *pump_settings;
     String input_cal = "";
 
     
@@ -45,14 +46,12 @@ class PumpMotor {
     RunMode rMode = Continous;
     
     enum Calibration_Status {air_done,pump60sec_1,pump60sec_2,init};
-//    enum Calibration_Status {init = 1; pump
     Calibration_Status calibration_status = init;
     
 
     PumpMotor(int pwm_pin, int dir_pin, int ena_pin);
-    PumpMotor();
 
-    void getSettings(int rMode, float pump_flow, float y1, float y2);
+    void setSettings(Pump_Settings *pump_settings);
     void setPumpTime(int pump_time);
     void setPwm(int _setPwm);
     int getPwm(void);

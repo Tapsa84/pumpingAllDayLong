@@ -3,6 +3,8 @@
 #include "phUnit.h"
 #include "HardwareSerial.h"
 #include <Arduino.h>
+#include <DueFlashStorage.h>
+
 
 #define pA_pwm 13
 #define pA_dir 24
@@ -22,20 +24,23 @@
 
 
 
+DueFlashStorage dueFlashStorage;
+
+Pump_Settings *pumpA_settings = new Pump_Settings;
+Pump_Settings *pumpB_settings = new Pump_Settings;
 
 PumpMotor *pumpA = new PumpMotor(pA_pwm, pA_dir, pA_ena);
 PumpMotor *pumpB = new PumpMotor(pB_pwm, pB_dir, pB_ena);
-PumpMotor *pumpC = new PumpMotor(pC_pwm, pC_dir, pC_ena);
-PumpMotor *pumpD = new PumpMotor(pD_pwm, pD_dir, pD_ena);
-
+//PumpMotor *pumpC = new PumpMotor(pC_pwm, pC_dir, pC_ena);
+//PumpMotor *pumpD = new PumpMotor(pD_pwm, pD_dir, pD_ena);
 
 
 
 phUnit *phUnit1 = new phUnit(&Serial1);
-phUnit *phUnit2 = new phUnit(&Serial2);
+//phUnit *phUnit2 = new phUnit(&Serial2);
 
 UnitController *Unit1 = new UnitController(pumpA, pumpB, phUnit1);
-UnitController *Unit2 = new UnitController(pumpC, pumpD, phUnit2);
+//UnitController *Unit2 = new UnitController(pumpC, pumpD, phUnit2);
 
 String input_data = "";
 String input_data_2 = "";
@@ -46,14 +51,19 @@ boolean input_data_done_2 = false;
 
 int i = 5;
 
+
+
+
+
 void setup() {
 
 
   Serial.begin(9600);
   Serial1.begin(9600);
   SerialUSB.begin(9600);
-  while(!SerialUSB);
+  while (!SerialUSB);
 
+  delay(200);
 
   pinMode(pA_pwm, OUTPUT); //u1 pA:n pwm ulostulo
   pinMode(pB_pwm, OUTPUT); //u1 pB:n pwm ulostulo
@@ -62,15 +72,17 @@ void setup() {
   pinMode(pA_ena, OUTPUT); //pin 26 on u1 pA:n kanavan kÃ¤ynnistys
   pinMode(pB_ena, OUTPUT); //pin 26 on u1 pA:n kanavan kÃ¤ynnistys
 
+  delay(200);
+
+  codeRunningForTheFirstTime();
+
+  delay(200);
 
 
 
-  delay(1000);
+  Unit1->pumpA->setSettings(pumpA_settings);
+  Unit1->pumpB->setSettings(pumpB_settings);
 
-  Unit1->pumpA->getSettings(2, 5, 10, 20);
-  Unit1->pumpB->getSettings(1, 5, 10, 20);
-  Unit2->pumpA->getSettings(2, 5, 10, 20);
-  Unit2->pumpB->getSettings(1, 5, 10, 20);
 
 
   SerialUSB.println("hyvin menee");
@@ -79,7 +91,11 @@ void setup() {
   Serial1.print("C,0");
   Serial1.print("\r");
 
-
+  Unit1->pumpA->pump_settings->pump_flow = 100;
+  
+  delay(500);
+  
+  saveSettings();
 
 }
 
@@ -104,8 +120,8 @@ void loop() {
 
     //Serial.print(input_data);
     //commandParse();
-    input_data_2 = "";
     SerialUSB.println(input_data_2);
+    input_data_2 = "";   
     input_data_done_2 = false;
   }
 
@@ -139,7 +155,8 @@ boolean commandParse() {
 
   if (input_cmd == "ID") {
     Serial.println("DS_pH_sys_1");
-    SerialUSB.println("DS_pH_sys_1:1");
+    SerialUSB.println("DS_pH_sys_1");
+    SerialUSB.println(Unit1->pumpA->pump_settings->pump_flow);
   }
 
   if (input_cmd == "pA")
@@ -228,22 +245,66 @@ void serialEvent1() {
 }
 
 
+void codeRunningForTheFirstTime() {
 
-union Unit_Settings {
-  struct {
-    float desired_pH;
-    float y1;
-    float y2;
-    int pumpA_flow;
-    int pumpB_flow;
-    int calibmode;
+  uint8_t codeRunningForTheFirstTime = dueFlashStorage.read(0); // luetaan flash osoitteesta 0
+  SerialUSB.print("codeRunningForTheFirstTime: ");
+  if (codeRunningForTheFirstTime == 255) {
+    SerialUSB.println("yes");
 
+    // tallennetaan pumppuyksikkö 1:n asetukset flashiin osoitteeseen 4
+    byte b2[sizeof(Pump_Settings)]; // create byte array to store the struct
+    memcpy(b2, &pumpA_settings, sizeof(Pump_Settings)); // copy the struct to the byte array
+    dueFlashStorage.write(4, b2, sizeof(Pump_Settings)); // write byte array to flash
 
-  };
-};
+    byte b3[sizeof(Pump_Settings)]; // create byte array to store the struct
+    memcpy(b2, &pumpB_settings, sizeof(Pump_Settings)); // copy the struct to the byte array
+    dueFlashStorage.write(28, b3, sizeof(Pump_Settings)); // write byte array to flash
 
+    
+    SerialUSB.println(sizeof(Pump_Settings));
+    /*// tallennetaan pumppuyksikkö 2:n asetukset flashiin osoitteeseen 5
+      byte b3[sizeof(Init2)]; // create byte array to store the struct
+      float koko = sizeof(Init2);
+      Serial.print(koko);
+      memcpy(b3, &init2, sizeof(Init2)); // copy the struct to the byte array
+      dueFlashStorage.write(32, b3, sizeof(Init2)); // write byte array to flash
+    */
 
+    // kirjoitetaan flashiin 1 osoiteessa 0, että koodia ei ajeta enää ensimmäistä kertaa
+    dueFlashStorage.write(0, 1);
+  }
+  else {
+    SerialUSB.println("no");
+    getSettings(); //haetaan flash-muistista pumppujen asetukset
+  }
+}
 
+void saveSettings() {
+ 
+  SerialUSB.println("Saving pumpA settings to flash.");
+
+ 
+  byte b2[sizeof(Pump_Settings)]; // create byte array to store the struct
+  memcpy(b2, &pumpA_settings, sizeof(Pump_Settings)); // copy the struct to the byte array
+  dueFlashStorage.write(4, b2, sizeof(Pump_Settings)); // write byte array to flash
+}
+
+void getSettings() {
+  //Asetusten hakeminen pumppuyksikkö 1:lle flash-muistista
+  byte* b = dueFlashStorage.readAddress(4); //pumppuyksikkö 1:n osoite flash muistissa
+
+  memcpy(&pumpA_settings, b, sizeof(Pump_Settings)); // kopiodaan tiedot initunit2 struktuuriin
+
+  byte* b2 = dueFlashStorage.readAddress(28); //pumppuyksikkö 1:n osoite flash muistissa
+
+  memcpy(&pumpB_settings, b2, sizeof(Pump_Settings)); // kopiodaan tiedot initunit2 struktuuriin
+  /*//Asetusten hakeminen pumppuyksikkö 2:lle flash-muistista
+    b = dueFlashStorage.readAddress(32); //pumppuyksikkö 2:n osoite flash muistissa
+
+    memcpy(&init2, b, sizeof(Init2)); // kopiodaan tiedot initunit2 struktuuriin
+  */
+}
 
 
 

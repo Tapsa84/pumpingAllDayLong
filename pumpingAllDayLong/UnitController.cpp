@@ -47,7 +47,7 @@ void UnitController::adjust_pH(PumpMotor *pump) {
   
   if (this->pH_dir == up)
   {
-    
+    bool increasePumpTime = this->dummy_pH < this->desired_pH - 0.1;
     if (pump->rMode == pump->RunMode::Dosing)
     {
       //SerialUSB.println("Here I am! UP");
