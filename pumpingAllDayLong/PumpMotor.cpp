@@ -121,18 +121,9 @@ void PumpMotor::calibrate() {
   this->off();
   this->calibration_status = init;
   this->input_cal = "";
-
-  SerialUSB.println("Please put the hoe in an empty waste container and");
-  SerialUSB.println("press OK and when ready. The pump will pump all");
-  SerialUSB.println("the air out. Press stop when no air is coming");
-  SerialUSB.println("out.");
-  SerialUSB.print('\n');
-  
-  while (this->calibration_status == init)
+ 
+  if (this->calibration_status == init)
   {
-
-    loop();
-
     if (this->input_cal == "ok")
     {
       SerialUSB.println("Starting to pump air out.");
@@ -148,7 +139,6 @@ void PumpMotor::calibrate() {
       this->off();
       this->calibration_status = pump60sec_1;
       this->input_cal = "";
-      break;
     }
     if (this->input_cal == "cancel")
     {
@@ -158,27 +148,18 @@ void PumpMotor::calibrate() {
     }
   }
 
-  SerialUSB.print('\n');
-  SerialUSB.println("Please put the hoe in to an cylindrical flask and");
-  SerialUSB.println("press ok to start pumping for 60 seconds.");
-
-
-  while (this->calibration_status == pump60sec_1)
+  if (this->calibration_status == pump60sec_1)
   {
-    loop();
-
     if (this->input_cal == "ok")
     {
       this->setPwm(20);
       this->on();
-      delay(200);
-      SerialUSB.println((millis() - this->lastPass) / 1000);
       if (this->oncePerTime(6000))
       {
         this->off();
         SerialUSB.println("pumped for 60 seconds");
         input_cal = "";
-        break;
+        this->calibration_status = getY1;
       }
     }
 
@@ -200,6 +181,8 @@ void PumpMotor::calibrate() {
   }
 
 
+  
+  
 
 
   SerialUSB.println("Please input the amount of liquid pumped");
