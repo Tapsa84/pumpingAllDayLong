@@ -14,24 +14,24 @@ void PumpMotor::setSettings(Pump_Settings *pump_settings) {
   this->pump_settings = pump_settings;
 
   switch (this->pump_settings->rMode) {
-      case 0:
-        this->rMode = Continous;
-        
-        if(this->rMode == Continous){
-          SerialUSB.println("Mode is Continous");        
-        }
-        break;
-        
-      case 1:
-        this->rMode = Dosing;
-        if(this->rMode == Dosing){
-          SerialUSB.println("Mode is Dosing");
-        }
-        break;
-    }
-  
-  if (this->pump_settings->y1 != 0 && this->pump_settings->y2 !=0) {
-    this->calflow();    
+    case 0:
+      this->rMode = Continous;
+
+      if (this->rMode == Continous) {
+        SerialUSB.println("Mode is Continous");
+      }
+      break;
+
+    case 1:
+      this->rMode = Dosing;
+      if (this->rMode == Dosing) {
+        SerialUSB.println("Mode is Dosing");
+      }
+      break;
+  }
+
+  if (this->pump_settings->y1 != 0 && this->pump_settings->y2 != 0) {
+    this->calflow();
   }
   else {
     this->isCalibrated = false;
@@ -115,77 +115,65 @@ void PumpMotor::toggle() {
 
 }
 
+void PumpMotor::get_input() {
+  if(SerialUSB.available() > 0) {
+    this->input_cal = SerialUSB.readStringUntil('\n');
+  }
+}
+
+bool PumpMotor::air_out() {
+
+  get_input();
+
+  if (this->input_cal == "ok") {
+    SerialUSB.println("Starting to pump air out, press stop when all");
+    SerialUSB.println("the air is out.");
+    this->setPwm(200);
+    this->on();
+    this->input_cal = "";
+
+  }
+  if (this->input_cal == "stop") {
+    SerialUSB.println("Stopping pump.");
+    this->off();
+    this->input_cal = "";
+    this->calibration_status = pump60sec_1;
+    return true;
+  }
+ 
+}
+
+bool PumpMotor::pump60sec(int pwm) {
+  
+  get_input();
+  
+  if (this->input_cal == "ok") {
+    SerialUSB.println("Starting to pump for 1 minute.");
+    this->setPwm(pwm);
+    this->on();
+    this->input_cal = "";
+    
+  }
+  if (oncePerTime(10000)) {
+    this->off();
+    return true;
+
+}
+}
 
 void PumpMotor::calibrate() {
+  
+  if(this->calibration_status = init) {
+    air_out();
+  }
 
-  this->off();
-  this->calibration_status = init;
-  this->input_cal = "";
- 
-  if (this->calibration_status == init)
-  {
-    if (this->input_cal == "ok")
-    {
-      SerialUSB.println("Starting to pump air out.");
-      SerialUSB.println("Press stop when no more");
-      SerialUSB.println("air is coming out.");
-      this->setPwm(200);
-      this->on();
-      this->input_cal = "";
-    }
-    if (this->input_cal == "stop")
-    {
-      SerialUSB.print("Stopping pump.");
-      this->off();
-      this->calibration_status = pump60sec_1;
-      this->input_cal = "";
-    }
-    if (this->input_cal == "cancel")
-    {
-      SerialUSB.println("Canceling calibration");
-      this->input_cal = "";
-      return;
+  
+  if (this->air_out()) {
+    if (this->pump60sec(20)) {
+        SerialUSB.println("Here is the calibration");
     }
   }
 
-  if (this->calibration_status == pump60sec_1)
-  {
-    if (this->input_cal == "ok")
-    {
-      this->setPwm(20);
-      this->on();
-      if (this->oncePerTime(6000))
-      {
-        this->off();
-        SerialUSB.println("pumped for 60 seconds");
-        input_cal = "";
-        this->calibration_status = getY1;
-      }
-    }
-
-    if (this->input_cal == "stop")
-    {
-      this->off();
-      SerialUSB.println("Canceling calibration.");
-      input_cal = "";
-      return;
-    }
-
-    if (this->input_cal == "cancel")
-    {
-      this->off();
-      SerialUSB.println("Canceling calibration.");
-      input_cal = "";
-      return;
-    }
-  }
-
-
-  
-  
-
-
-  SerialUSB.println("Please input the amount of liquid pumped");
 
 }
 

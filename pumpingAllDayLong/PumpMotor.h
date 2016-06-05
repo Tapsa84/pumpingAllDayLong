@@ -36,8 +36,10 @@ class PumpMotor {
 
   public:
 
+    bool isCalibrating = false;
     Pump_Settings *pump_settings;
     String input_cal = "";
+    String input_cal_value = "";
 
     
 
@@ -45,7 +47,7 @@ class PumpMotor {
     enum RunMode {Continous, Dosing, Custom};
     RunMode rMode = Continous;
     
-    enum Calibration_Status {air_done,pump60sec_1,pump60sec_2,init};
+    enum Calibration_Status {pump60sec_1,pump60sec_2,init, getY1, getY2};
     Calibration_Status calibration_status = init;
     
 
@@ -61,6 +63,9 @@ class PumpMotor {
     void off();
     bool isOn();
     void toggle();
+    void get_input();
+    bool air_out();
+    bool pump60sec(int pwm);
     void calibrate();
     void calflow();
     bool isCalib();

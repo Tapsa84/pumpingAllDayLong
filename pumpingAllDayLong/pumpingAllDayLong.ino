@@ -39,8 +39,8 @@ PumpMotor *pumpB = new PumpMotor(pB_pwm, pB_dir, pB_ena);
 phUnit *phUnit1 = new phUnit(&Serial1);
 //phUnit *phUnit2 = new phUnit(&Serial2);
 
-UnitController *Unit1 = new UnitController(pumpA, pumpB, phUnit1);
-//UnitController *Unit2 = new UnitController(pumpC, pumpD, phUnit2);
+UnitController *Unit1 = new UnitController(pumpA, pumpB, phUnit1, "Unit1");
+//UnitController *Unit2 = new UnitController(pumpC, pumpD, phUnit2, "Unit2");
 
 String input_data = "";
 String input_data_2 = "";
@@ -74,7 +74,7 @@ void setup() {
 
   delay(200);
 
-  codeRunningForTheFirstTime();
+  //codeRunningForTheFirstTime();
 
   delay(200);
 
@@ -91,17 +91,17 @@ void setup() {
   Serial1.print("C,0");
   Serial1.print("\r");
 
-  Unit1->pumpA->pump_settings->pump_flow = 100;
-  
+  //Unit1->pumpA->pump_settings->pump_flow = 100;
+
   delay(500);
-  
-  saveSettings();
+
+  //saveSettings();
 
 }
 
 void loop() {
 
-  //Unit1->tick();
+  Unit1->tick();
   //Unit2->tick();
 
   serialEventUSB();
@@ -121,7 +121,7 @@ void loop() {
     //Serial.print(input_data);
     //commandParse();
     SerialUSB.println(input_data_2);
-    input_data_2 = "";   
+    input_data_2 = "";
     input_data_done_2 = false;
   }
 
@@ -156,10 +156,53 @@ boolean commandParse() {
   if (input_cmd == "ID") {
     Serial.println("DS_pH_sys_1");
     SerialUSB.println("DS_pH_sys_1");
-    SerialUSB.println(Unit1->pumpA->pump_settings->pump_flow);
   }
 
-  if (input_cmd == "pA")
+
+  if (input_cmd == "U1") {
+    if (input_value == "off") {
+      Unit1->controller_state = Unit1->Controller_state::off;
+      Unit1->unit_off();
+      Unit1->lastPass = millis();
+    }
+    if (input_value == "on") {
+      Unit1->controller_state = Unit1->Controller_state::on;
+      Unit1->lastPass = millis();
+    }
+    if (input_value == "pA_cal") {
+      Unit1->unit_off();
+      Unit1->cal_state = Unit1->Cal_state::air;
+      Unit1->pumpA->isCalibrating = true;
+      Unit1->controller_state = Unit1->Controller_state::off;
+      
+    }
+    if (input_value == "pB_cal") {
+      Unit1->controller_state = Unit1->Controller_state::cal_pumpB;
+      Unit1->unit_off();
+    }
+    if (input_value == "pH_cal") {
+      Unit1->controller_state = Unit1->Controller_state::cal_pH;
+      Unit1->unit_off();
+    }
+
+    if (input_value == "ok") {
+      Unit1->input_cmd = input_value;
+    }
+
+    if (input_value == "stop") {
+      Unit1->input_cmd = input_value;
+    }
+
+    if(input_value == "cancel") {
+      Unit1->input_cmd = input_value;
+    }
+  }
+
+   
+
+
+
+  if (input_cmd == "U1_pA")
   {
 
     Unit1->pumpA->input_cal = input_value;
@@ -181,7 +224,7 @@ boolean commandParse() {
     }
   }
 
-  if (input_cmd == "pB") {
+  if (input_cmd == "U1_pB") {
     if (input_value == "is_cal") {
 
       if (Unit1->pumpB->isCalib()) {
@@ -193,7 +236,7 @@ boolean commandParse() {
     }
   }
 
-  if (input_cmd == "pH_1") {
+  if (input_cmd == "U1_pH") {
     if (input_value == "is_cal") {
 
       if (Unit1->_phUnit->isCalibrated()) {
@@ -203,6 +246,11 @@ boolean commandParse() {
         SerialUSB.println("pH_1_is_cal:10");
       }
     }
+  }
+
+  if (input_cmd == "U1_pA_y1") {
+    Unit1->pumpA->input_cal_value = input_value;
+
   }
 }
 
@@ -261,7 +309,7 @@ void codeRunningForTheFirstTime() {
     memcpy(b2, &pumpB_settings, sizeof(Pump_Settings)); // copy the struct to the byte array
     dueFlashStorage.write(28, b3, sizeof(Pump_Settings)); // write byte array to flash
 
-    
+
     SerialUSB.println(sizeof(Pump_Settings));
     /*// tallennetaan pumppuyksikkö 2:n asetukset flashiin osoitteeseen 5
       byte b3[sizeof(Init2)]; // create byte array to store the struct
@@ -281,10 +329,10 @@ void codeRunningForTheFirstTime() {
 }
 
 void saveSettings() {
- 
+
   SerialUSB.println("Saving pumpA settings to flash.");
 
- 
+
   byte b2[sizeof(Pump_Settings)]; // create byte array to store the struct
   memcpy(b2, &pumpA_settings, sizeof(Pump_Settings)); // copy the struct to the byte array
   dueFlashStorage.write(4, b2, sizeof(Pump_Settings)); // write byte array to flash
