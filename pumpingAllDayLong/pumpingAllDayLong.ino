@@ -88,8 +88,8 @@ void setup() {
   SerialUSB.println("hyvin menee");
   Serial1.print(" ");
   delay(1000);
-  Serial1.print("C,0");
-  Serial1.print("\r");
+  //Serial1.print("C,0");
+  //Serial1.print("\r");
 
   //Unit1->pumpA->pump_settings->pump_flow = 100;
 
@@ -121,6 +121,7 @@ void loop() {
     //Serial.print(input_data);
     //commandParse();
     SerialUSB.println(input_data_2);
+    
     input_data_2 = "";
     input_data_done_2 = false;
   }
@@ -184,12 +185,17 @@ boolean commandParse() {
     if (input_value == "pB_cal") {
       Unit1->unit_off();
       Unit1->cal_state = Unit1->Cal_state::air;
-      Unit1->pumpA->isCalibrating = true;
+      Unit1->pumpB->isCalibrating = true;
       Unit1->controller_state = Unit1->Controller_state::off;
     }
     if (input_value == "pH_cal") {
+      Unit1->unit_off();
       Unit1->controller_state = Unit1->Controller_state::cal_pH;
       Unit1->unit_off();
+    }
+
+    if (input_value == "pH_read_mode") {
+      Unit1->_phUnit->ContinousReadMode('?');
     }
 
     else {

@@ -12,6 +12,8 @@ class phUnit {
     float _getTemp;
     float _setTemp;
     boolean _isCalibrated = true;
+    
+    
     String from_pH_meter = "";
     String from_host = "";
     enum CalibMode {hi, low};
@@ -22,12 +24,17 @@ class phUnit {
 
   public:
 
+    boolean _isCalibrating = false;
+    boolean _isReading = false;
+    boolean _cont_read_mode = false;
     phUnit(HardwareSerial *serial);
     phUnit();
 
     void setTemp(float _setTemp);
+    void ContinousReadMode(char mode);
     float getTemp(void);
     float getpH();
+    
     
     bool isCalibrated(void);
 

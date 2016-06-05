@@ -29,18 +29,35 @@ float phUnit::getTemp(void) {
   }
 }
 
+void phUnit::ContinousReadMode(char mode) {
+  if (mode == '1') {
+    this->serial->print("C,1");
+    this->serial->print("\r");
+  }
+  if (mode == '0') {
+    this->serial->print("C,0");
+    this->serial->print("\r");
+  }
+
+  if (mode == '?') {
+    this->serial->print("C,?");
+    this->serial->print("\r");
+  }
+  
+}
+
 float phUnit::getpH(void) {
   this->serial->print("R");
   this->serial->print("\r");
   if (serial->available() > 0) {
-    this->from_pH_meter = this->serial->readStringUntil('r');
+    this->from_pH_meter = this->serial->readStringUntil('\r');
     this->pH_value = from_pH_meter.toFloat();
     return this->pH_value;
   }
 }
 
-void phUnit::Calibrate(CalibMode *CalMode){
-   this->CalMode = CalMode;   
+void phUnit::Calibrate(CalibMode *CalMode) {
+  this->CalMode = CalMode;
 }
 
 void phUnit::setCalibMode(CalibMode *CalMode) {
@@ -48,9 +65,9 @@ void phUnit::setCalibMode(CalibMode *CalMode) {
 }
 
 bool phUnit::isCalibrated(void) {
-  
+
   return this->_isCalibrated;
-  
+
 }
 
 

@@ -20,7 +20,7 @@ class UnitController {
     String input_cmd = "";
     int lastPass = 0;
     enum Controller_state {on, off, cal_pumpA, cal_pumpB, cal_pH};
-    Controller_state controller_state = on;
+    Controller_state controller_state = off;
 
     enum Cal_state {air,pump1,pump2,getY1,getY2};
     Cal_state cal_state = air;
