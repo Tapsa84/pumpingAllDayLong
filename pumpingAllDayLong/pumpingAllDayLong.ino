@@ -169,6 +169,11 @@ boolean commandParse() {
       Unit1->controller_state = Unit1->Controller_state::on;
       Unit1->lastPass = millis();
     }
+
+    if (input_value == "save"){
+      SerialUSB.println("Saving current settings");
+      saveSettings(0);
+    }
     if (input_value == "pA_cal") {
       Unit1->unit_off();
       Unit1->cal_state = Unit1->Cal_state::air;
@@ -177,8 +182,10 @@ boolean commandParse() {
       
     }
     if (input_value == "pB_cal") {
-      Unit1->controller_state = Unit1->Controller_state::cal_pumpB;
       Unit1->unit_off();
+      Unit1->cal_state = Unit1->Cal_state::air;
+      Unit1->pumpA->isCalibrating = true;
+      Unit1->controller_state = Unit1->Controller_state::off;
     }
     if (input_value == "pH_cal") {
       Unit1->controller_state = Unit1->Controller_state::cal_pH;
@@ -305,14 +312,22 @@ void codeRunningForTheFirstTime() {
   }
 }
 
-void saveSettings() {
+void saveSettings(int i) {
 
+ 
+  if (i == 0){
   SerialUSB.println("Saving pumpA settings to flash.");
-
-
   byte b2[sizeof(Pump_Settings)]; 
   memcpy(b2, &pumpA_settings, sizeof(Pump_Settings)); 
   dueFlashStorage.write(4, b2, sizeof(Pump_Settings)); 
+
+  SerialUSB.println("Saving pumpB settings to flash.");
+  byte b3[sizeof(Pump_Settings)]; 
+  memcpy(b2, &pumpB_settings, sizeof(Pump_Settings)); 
+  dueFlashStorage.write(28, b2, sizeof(Pump_Settings)); 
+  }
+
+  
 }
 
 void getSettings() {
