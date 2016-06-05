@@ -185,7 +185,10 @@ boolean commandParse() {
       Unit1->unit_off();
     }
 
-    if (input_value == "ok") {
+    else {
+      Unit1->input_cmd = input_value;
+    }
+/*    if (input_value == "ok") {
       Unit1->input_cmd = input_value;
     }
 
@@ -195,34 +198,14 @@ boolean commandParse() {
 
     if(input_value == "cancel") {
       Unit1->input_cmd = input_value;
-    }
+   }*/ 
   }
 
    
 
 
 
-  if (input_cmd == "U1_pA")
-  {
-
-    Unit1->pumpA->input_cal = input_value;
-    if (input_value == "is_cal")
-    {
-
-      if (Unit1->pumpA->isCalib())
-      {
-        SerialUSB.println("pA_isCalib:1");
-      }
-      else
-      {
-        SerialUSB.println("pA_isCalib:0");
-      }
-    }
-    if (input_value == "cal")
-    {
-      Unit1->pumpA->calibrate();
-    }
-  }
+  
 
   if (input_cmd == "U1_pB") {
     if (input_value == "is_cal") {
@@ -300,25 +283,19 @@ void codeRunningForTheFirstTime() {
   if (codeRunningForTheFirstTime == 255) {
     SerialUSB.println("yes");
 
-    // tallennetaan pumppuyksikkö 1:n asetukset flashiin osoitteeseen 4
-    byte b2[sizeof(Pump_Settings)]; // create byte array to store the struct
-    memcpy(b2, &pumpA_settings, sizeof(Pump_Settings)); // copy the struct to the byte array
-    dueFlashStorage.write(4, b2, sizeof(Pump_Settings)); // write byte array to flash
+    // tallennetaan pumppu A muistiin
+    byte b2[sizeof(Pump_Settings)]; 
+    memcpy(b2, &pumpA_settings, sizeof(Pump_Settings)); 
+    dueFlashStorage.write(4, b2, sizeof(Pump_Settings)); 
 
-    byte b3[sizeof(Pump_Settings)]; // create byte array to store the struct
-    memcpy(b2, &pumpB_settings, sizeof(Pump_Settings)); // copy the struct to the byte array
-    dueFlashStorage.write(28, b3, sizeof(Pump_Settings)); // write byte array to flash
+    //tallennetaan pumppu B muistiin
+    byte b3[sizeof(Pump_Settings)]; 
+    memcpy(b2, &pumpB_settings, sizeof(Pump_Settings)); 
+    dueFlashStorage.write(28, b3, sizeof(Pump_Settings)); 
 
 
     SerialUSB.println(sizeof(Pump_Settings));
-    /*// tallennetaan pumppuyksikkö 2:n asetukset flashiin osoitteeseen 5
-      byte b3[sizeof(Init2)]; // create byte array to store the struct
-      float koko = sizeof(Init2);
-      Serial.print(koko);
-      memcpy(b3, &init2, sizeof(Init2)); // copy the struct to the byte array
-      dueFlashStorage.write(32, b3, sizeof(Init2)); // write byte array to flash
-    */
-
+    
     // kirjoitetaan flashiin 1 osoiteessa 0, että koodia ei ajeta enää ensimmäistä kertaa
     dueFlashStorage.write(0, 1);
   }
@@ -333,25 +310,21 @@ void saveSettings() {
   SerialUSB.println("Saving pumpA settings to flash.");
 
 
-  byte b2[sizeof(Pump_Settings)]; // create byte array to store the struct
-  memcpy(b2, &pumpA_settings, sizeof(Pump_Settings)); // copy the struct to the byte array
-  dueFlashStorage.write(4, b2, sizeof(Pump_Settings)); // write byte array to flash
+  byte b2[sizeof(Pump_Settings)]; 
+  memcpy(b2, &pumpA_settings, sizeof(Pump_Settings)); 
+  dueFlashStorage.write(4, b2, sizeof(Pump_Settings)); 
 }
 
 void getSettings() {
-  //Asetusten hakeminen pumppuyksikkö 1:lle flash-muistista
-  byte* b = dueFlashStorage.readAddress(4); //pumppuyksikkö 1:n osoite flash muistissa
+  //Asetusten hakeminen pumpuille
+  byte* b = dueFlashStorage.readAddress(4); //pumppu A:n osoite
 
-  memcpy(&pumpA_settings, b, sizeof(Pump_Settings)); // kopiodaan tiedot initunit2 struktuuriin
+  memcpy(&pumpA_settings, b, sizeof(Pump_Settings)); 
 
-  byte* b2 = dueFlashStorage.readAddress(28); //pumppuyksikkö 1:n osoite flash muistissa
+  byte* b2 = dueFlashStorage.readAddress(28); //pumppu B:n osoite
 
-  memcpy(&pumpB_settings, b2, sizeof(Pump_Settings)); // kopiodaan tiedot initunit2 struktuuriin
-  /*//Asetusten hakeminen pumppuyksikkö 2:lle flash-muistista
-    b = dueFlashStorage.readAddress(32); //pumppuyksikkö 2:n osoite flash muistissa
+  memcpy(&pumpB_settings, b2, sizeof(Pump_Settings)); 
 
-    memcpy(&init2, b, sizeof(Init2)); // kopiodaan tiedot initunit2 struktuuriin
-  */
 }
 
 

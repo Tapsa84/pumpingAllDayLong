@@ -66,7 +66,6 @@ class PumpMotor {
     void get_input();
     bool air_out();
     bool pump60sec(int pwm);
-    void calibrate();
     void calflow();
     bool isCalib();
     bool oncePerTime();

@@ -116,7 +116,7 @@ void PumpMotor::toggle() {
 }
 
 void PumpMotor::get_input() {
-  if(SerialUSB.available() > 0) {
+  if (SerialUSB.available() > 0) {
     this->input_cal = SerialUSB.readStringUntil('\n');
   }
 }
@@ -140,42 +140,26 @@ bool PumpMotor::air_out() {
     this->calibration_status = pump60sec_1;
     return true;
   }
- 
+
 }
 
 bool PumpMotor::pump60sec(int pwm) {
-  
+
   get_input();
-  
+
   if (this->input_cal == "ok") {
     SerialUSB.println("Starting to pump for 1 minute.");
     this->setPwm(pwm);
     this->on();
     this->input_cal = "";
-    
+
   }
   if (oncePerTime(10000)) {
     this->off();
     return true;
-
-}
-}
-
-void PumpMotor::calibrate() {
-  
-  if(this->calibration_status = init) {
-    air_out();
   }
-
-  
-  if (this->air_out()) {
-    if (this->pump60sec(20)) {
-        SerialUSB.println("Here is the calibration");
-    }
-  }
-
-
 }
+
 
 float getFlow() {
 
