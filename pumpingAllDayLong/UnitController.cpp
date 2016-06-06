@@ -162,9 +162,90 @@ void UnitController::get_input() {
   }
 }
 
+
+
+
+
+void UnitController::calibrate_phUnit(phUnit *phunit) {
+
+  if (phunit->isCalibratingHigh == true) {
+    
+    if (this->ph_cal_state == init_mid) {
+      SerialUSB.println("Please enter mid point pH:");
+      input_cmd = "";
+      this->ph_cal_state = get_pH_mid;
+    }
+
+    if (this->ph_cal_state == get_pH_mid) {
+      if (input_cmd != "") {
+        this->mid_pH = this->input_cmd.toFloat();
+        SerialUSB.println("Saving " + input_cmd + " as midpoint");
+        SerialUSB.println("Put the meter in the standard and type ok.");
+        SerialUSB.println("Once pH has stabilized type ok again.");
+        input_cmd = "";
+        phunit->ContinousReadMode('1');
+        this->ph_cal_state = cal_mid;
+        
+      }
+    }
+
+    if(this->ph_cal_state == cal_mid){
+      if(input_cmd == "ok") {
+        phunit->calMid(this->mid_pH);
+        SerialUSB.println("Midpoint calibrated");
+        input_cmd == "";
+        phunit->ContinousReadMode('0');
+        this->ph_cal_state = init_high;
+        
+      }
+    }
+
+    if (this->ph_cal_state == init_high) {
+      SerialUSB.println("Please enter highpoint pH:");
+      input_cmd = "";
+      this->ph_cal_state = get_pH_high;
+    }
+
+    if (this->ph_cal_state == get_pH_high) {
+      if (input_cmd != "") {
+        this->high_pH = this->input_cmd.toFloat();
+        SerialUSB.println("Saving " + input_cmd + " as highpoint");
+        SerialUSB.println("Put the meter in the standard and type ok.");
+        SerialUSB.println("Once pH has stabilized type ok again.");
+        input_cmd = "";
+        phunit->ContinousReadMode('1');
+        this->ph_cal_state = cal_high;
+        
+      }
+    }
+
+    if(this->ph_cal_state == cal_high){
+      if(input_cmd == "ok") {
+        phunit->calHigh(this->high_pH);
+        SerialUSB.println("Highpoint calibrated");
+        input_cmd == "";
+        phunit->ContinousReadMode('0');
+        this->ph_cal_state = init_mid;
+        phunit->isCalibratingHigh = false;
+        
+      }
+    }
+}
+
+if (phunit->isCalibratingLow = true) {
+
+  }
+
+  if (phunit->isCalibratingTri = true) {
+
+
+  }
+
+}
+
 void UnitController::calibrate_pump(PumpMotor *pump) {
 
-  
+
 
 
   if (this->cal_state == air) {
@@ -188,15 +269,15 @@ void UnitController::calibrate_pump(PumpMotor *pump) {
       pump->setPwm(20);
       pump->on();
       input_cmd = "pump";
-      
+
     }
-   if (pump->oncePerTime(6000) && input_cmd == "pump") {
-        pump->off();
-        SerialUSB.println("Pumped for 1 minute,");
-        SerialUSB.println("please type the amount pumped.");
-        this->cal_state = getY1;
-        input_cmd = "";
-      }
+    if (pump->oncePerTime(6000) && input_cmd == "pump") {
+      pump->off();
+      SerialUSB.println("Pumped for 1 minute,");
+      SerialUSB.println("please type the amount pumped.");
+      this->cal_state = getY1;
+      input_cmd = "";
+    }
   }
 
   if (this->cal_state == getY1) {
@@ -265,7 +346,12 @@ void UnitController::tick() {
     if (this->pumpA->isCalibrating) {
       this->calibrate_pump(pumpA);
     }
-
+    if (this->pumpB->isCalibrating) {
+      this->calibrate_pump(pumpB);
+    }
+    if (this->_phUnit->isCalibratingHigh) {
+      this->calibrate_phUnit(_phUnit);
+    }
   }
 
 

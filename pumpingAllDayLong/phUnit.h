@@ -23,8 +23,9 @@ class phUnit {
 
 
   public:
-
-    boolean _isCalibrating = false;
+    boolean isCalibratingHigh = false;
+    boolean isCalibratingLow = false;
+    boolean isCalibratingTri = false;
     boolean _isReading = false;
     boolean _cont_read_mode = false;
     phUnit(HardwareSerial *serial);
@@ -34,6 +35,9 @@ class phUnit {
     void ContinousReadMode(char mode);
     float getTemp(void);
     float getpH();
+    void calMid(float pH);
+    void calLow(float pH);
+    void calHigh(float pH);
     
     
     bool isCalibrated(void);

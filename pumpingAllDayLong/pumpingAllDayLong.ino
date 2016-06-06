@@ -121,7 +121,6 @@ void loop() {
     //Serial.print(input_data);
     //commandParse();
     SerialUSB.println(input_data_2);
-    
     input_data_2 = "";
     input_data_done_2 = false;
   }
@@ -177,16 +176,25 @@ boolean commandParse() {
     }
     if (input_value == "pA_cal") {
       Unit1->unit_off();
+      if(Unit1->pumpB->isCalibrating == false){
       Unit1->cal_state = Unit1->Cal_state::air;
       Unit1->pumpA->isCalibrating = true;
       Unit1->controller_state = Unit1->Controller_state::off;
-      
+      }
+      else {
+        SerialUSB.println("Error: Already calibrating pump B");
+      }
     }
     if (input_value == "pB_cal") {
       Unit1->unit_off();
+      if(Unit1->pumpA->isCalibrating == false){
       Unit1->cal_state = Unit1->Cal_state::air;
-      Unit1->pumpB->isCalibrating = true;
+      Unit1->pumpA->isCalibrating = true;
       Unit1->controller_state = Unit1->Controller_state::off;
+      }
+      else {
+        SerialUSB.println("Error: Already calibrating pump A");
+      }
     }
     if (input_value == "pH_cal") {
       Unit1->unit_off();
@@ -194,10 +202,26 @@ boolean commandParse() {
       Unit1->unit_off();
     }
 
-    if (input_value == "pH_read_mode") {
+    if (input_value == "pH_cont_read_mode") {
       Unit1->_phUnit->ContinousReadMode('?');
     }
 
+    if (input_value == "pH_cont_read_on") {
+      Unit1->_phUnit->ContinousReadMode('1');
+    }
+
+    if (input_value == "pH_cont_read_off") {
+      Unit1->_phUnit->ContinousReadMode('0');
+    }
+
+    if (input_value == "pH_cal_hi") {
+      Unit1->unit_off();
+      Unit1->_phUnit->ContinousReadMode('0');
+      Unit1->_phUnit->isCalibratingHigh = true;
+      Unit1->_phUnit->isCalibratingLow = false;
+      Unit1->_phUnit->isCalibratingTri = false;
+      
+    }
     else {
       Unit1->input_cmd = input_value;
     }

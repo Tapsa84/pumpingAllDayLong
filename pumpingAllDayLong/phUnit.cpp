@@ -10,6 +10,23 @@ phUnit::phUnit() {
 
 }
 
+void phUnit::calMid(float pH) {
+  this->serial->print("Cal,mid,");
+  this->serial->print(pH);
+  this->serial->print("\r");
+}
+
+void phUnit::calLow(float pH) {
+  this->serial->print("Cal,low,");
+  this->serial->print(pH);
+  this->serial->print("\r");
+}
+void phUnit::calHigh(float pH) {
+  this->serial->print("Cal,high,");
+  this->serial->print(pH);
+  this->serial->print("\r");
+}
+
 void phUnit::setTemp(float _setTemp) {
   this->_setTemp = _setTemp;
   this->serial->print("T,");
@@ -43,7 +60,7 @@ void phUnit::ContinousReadMode(char mode) {
     this->serial->print("C,?");
     this->serial->print("\r");
   }
-  
+
 }
 
 float phUnit::getpH(void) {
