@@ -196,10 +196,31 @@ boolean commandParse() {
         SerialUSB.println("Error: Already calibrating pump A");
       }
     }
-    if (input_value == "pH_cal") {
+    if (input_value == "pH_cal_high") {
       Unit1->unit_off();
-      Unit1->controller_state = Unit1->Controller_state::cal_pH;
+      Unit1->controller_state = Unit1->Controller_state::off;
+      Unit1->_phUnit->ContinousReadMode('0');
+      Unit1->_phUnit->isCalibratingHigh = true;
+      Unit1->_phUnit->isCalibratingLow = false;
+      Unit1->_phUnit->isCalibratingTri = false;   
+    }
+
+    if (input_value == "pH_cal_low") {
       Unit1->unit_off();
+      Unit1->controller_state = Unit1->Controller_state::off;
+      Unit1->_phUnit->ContinousReadMode('0');
+      Unit1->_phUnit->isCalibratingHigh = false;
+      Unit1->_phUnit->isCalibratingLow = true;
+      Unit1->_phUnit->isCalibratingTri = false;   
+    }
+
+    if (input_value == "pH_cal_tri") {
+      Unit1->unit_off();
+      Unit1->controller_state = Unit1->Controller_state::off;
+      Unit1->_phUnit->ContinousReadMode('0');
+      Unit1->_phUnit->isCalibratingHigh = false;
+      Unit1->_phUnit->isCalibratingLow = false;
+      Unit1->_phUnit->isCalibratingTri = true;   
     }
 
     if (input_value == "pH_cont_read_mode") {
@@ -214,14 +235,6 @@ boolean commandParse() {
       Unit1->_phUnit->ContinousReadMode('0');
     }
 
-    if (input_value == "pH_cal_hi") {
-      Unit1->unit_off();
-      Unit1->_phUnit->ContinousReadMode('0');
-      Unit1->_phUnit->isCalibratingHigh = true;
-      Unit1->_phUnit->isCalibratingLow = false;
-      Unit1->_phUnit->isCalibratingTri = false;
-      
-    }
     else {
       Unit1->input_cmd = input_value;
     }

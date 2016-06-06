@@ -11,17 +11,23 @@ phUnit::phUnit() {
 }
 
 void phUnit::calMid(float pH) {
+  SerialUSB.print("Calibrating mid with ");
+  SerialUSB.println(pH);
   this->serial->print("Cal,mid,");
   this->serial->print(pH);
   this->serial->print("\r");
 }
 
 void phUnit::calLow(float pH) {
+  SerialUSB.print("Calibrating low with ");
+  SerialUSB.println(pH);
   this->serial->print("Cal,low,");
   this->serial->print(pH);
   this->serial->print("\r");
 }
 void phUnit::calHigh(float pH) {
+  SerialUSB.print("Calibrating high with ");
+  SerialUSB.println(pH);
   this->serial->print("Cal,high,");
   this->serial->print(pH);
   this->serial->print("\r");

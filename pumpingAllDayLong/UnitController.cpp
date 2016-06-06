@@ -233,12 +233,162 @@ void UnitController::calibrate_phUnit(phUnit *phunit) {
 }
 
 if (phunit->isCalibratingLow = true) {
+    
+    if (this->ph_cal_state == init_mid) {
+      SerialUSB.println("Please enter mid point pH:");
+      input_cmd = "";
+      this->ph_cal_state = get_pH_mid;
+    }
 
+    if (this->ph_cal_state == get_pH_mid) {
+      if (input_cmd != "") {
+        this->mid_pH = this->input_cmd.toFloat();
+        SerialUSB.println("Saving " + input_cmd + " as midpoint");
+        SerialUSB.println("Put the meter in the standard and once");
+        SerialUSB.println("the pH has stabilized, type ok.");
+        input_cmd = "";
+        phunit->ContinousReadMode('1');
+        this->ph_cal_state = cal_mid;
+        
+      }
+    }
+    
+    if(this->ph_cal_state == cal_mid){
+      if(input_cmd == "ok") {
+        phunit->calMid(this->mid_pH);
+        SerialUSB.println("Midpoint calibrated");
+        input_cmd == "";
+        phunit->ContinousReadMode('0');
+        this->ph_cal_state = init_low;
+        
+      }
+    }
+
+    if (this->ph_cal_state == init_low) {
+      SerialUSB.println("Please enter lowpoint pH:");
+      input_cmd = "";
+      this->ph_cal_state = get_pH_low;
+    }
+
+    if (this->ph_cal_state == get_pH_low) {
+      if (input_cmd != "") {
+        this->low_pH = this->input_cmd.toFloat();
+        SerialUSB.println("Saving " + input_cmd + " as lowpoint");
+        SerialUSB.println("Put the meter in the standard and once");
+        SerialUSB.println("the pH has stabilized, type ok.");
+        input_cmd = "";
+        phunit->ContinousReadMode('1');
+        this->ph_cal_state = cal_low;
+        
+      }
+    }
+
+    if(this->ph_cal_state == cal_low){
+      if(input_cmd == "ok") {
+        phunit->calHigh(this->low_pH);
+        SerialUSB.println("Lowpoint calibrated");
+        input_cmd == "";
+        phunit->ContinousReadMode('0');
+        this->ph_cal_state = init_mid;
+        phunit->isCalibratingLow = false;
+        
+      }
+    }
   }
 
   if (phunit->isCalibratingTri = true) {
+    
+    if (this->ph_cal_state == init_mid) {
+      SerialUSB.println("Please enter mid point pH:");
+      input_cmd = "";
+      this->ph_cal_state = get_pH_mid;
+    }
 
+    if (this->ph_cal_state == get_pH_mid) {
+      if (input_cmd != "") {
+        this->mid_pH = this->input_cmd.toFloat();
+        SerialUSB.println("Saving " + input_cmd + " as midpoint");
+        SerialUSB.println("Put the meter in the standard and once");
+        SerialUSB.println("the pH has stabilized, type ok.");
+        input_cmd = "";
+        phunit->ContinousReadMode('1');
+        this->ph_cal_state = cal_mid;
+        
+      }
+    }
 
+    if(this->ph_cal_state == cal_mid){
+      if(input_cmd == "ok") {
+        phunit->calMid(this->mid_pH);
+        SerialUSB.println("Midpoint calibrated");
+        input_cmd == "";
+        phunit->ContinousReadMode('0');
+        this->ph_cal_state = init_high;
+        
+      }
+    }
+
+    if (this->ph_cal_state == init_high) {
+      SerialUSB.println("Please enter highpoint pH:");
+      input_cmd = "";
+      this->ph_cal_state = get_pH_high;
+    }
+
+    if (this->ph_cal_state == get_pH_high) {
+      if (input_cmd != "") {
+        this->high_pH = this->input_cmd.toFloat();
+        SerialUSB.println("Saving " + input_cmd + " as highpoint");
+        SerialUSB.println("Put the meter in the standard and once");
+        SerialUSB.println("the pH has stabilized, type ok.");
+        input_cmd = "";
+        phunit->ContinousReadMode('1');
+        this->ph_cal_state = cal_high;
+        
+      }
+    }
+
+    if(this->ph_cal_state == cal_high){
+      if(input_cmd == "ok") {
+        phunit->calHigh(this->high_pH);
+        SerialUSB.println("Highpoint calibrated");
+        input_cmd == "";
+        phunit->ContinousReadMode('0');
+        this->ph_cal_state = init_low;
+        phunit->isCalibratingHigh = false;
+        
+      }
+    }
+    
+    if (this->ph_cal_state == init_low) {
+      SerialUSB.println("Please enter lowpoint pH:");
+      input_cmd = "";
+      this->ph_cal_state = get_pH_low;
+    }
+
+    if (this->ph_cal_state == get_pH_low) {
+      if (input_cmd != "") {
+        this->low_pH = this->input_cmd.toFloat();
+        SerialUSB.println("Saving " + input_cmd + " as lowpoint");
+        SerialUSB.println("Put the meter in the standard and once");
+        SerialUSB.println("the pH has stabilized, type ok.");
+        input_cmd = "";
+        phunit->ContinousReadMode('1');
+        this->ph_cal_state = cal_low;
+        
+      }
+    }
+
+    if(this->ph_cal_state == cal_low){
+      if(input_cmd == "ok") {
+        phunit->calHigh(this->low_pH);
+        SerialUSB.println("Lowpoint calibrated");
+        input_cmd == "";
+        phunit->ContinousReadMode('0');
+        this->ph_cal_state = init_mid;
+        phunit->isCalibratingTri = false;
+        
+      }
+    }
   }
 
 }
