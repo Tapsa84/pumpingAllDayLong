@@ -6,8 +6,10 @@ phUnit::phUnit(HardwareSerial *serial) {
   this->serial = serial;
 }
 
-phUnit::phUnit() {
 
+void phUnit::queryCal() {
+  this->serial->print("Cal,?");
+  this->serial->print("\r");
 }
 
 void phUnit::calMid(float pH) {

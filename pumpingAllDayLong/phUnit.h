@@ -11,7 +11,7 @@ class phUnit {
     float pH_value;
     float _getTemp;
     float _setTemp;
-    boolean _isCalibrated = true;
+    
     
     
     String from_pH_meter = "";
@@ -23,14 +23,17 @@ class phUnit {
 
 
   public:
+
+    boolean _isCalibrated = true;
     boolean isCalibratingHigh = false;
     boolean isCalibratingLow = false;
     boolean isCalibratingTri = false;
     boolean _isReading = false;
     boolean _cont_read_mode = false;
+    
     phUnit(HardwareSerial *serial);
-    phUnit();
 
+    void queryCal();
     void setTemp(float _setTemp);
     void ContinousReadMode(char mode);
     float getTemp(void);

@@ -121,6 +121,11 @@ void loop() {
     //Serial.print(input_data);
     //commandParse();
     SerialUSB.println(input_data_2);
+
+    if(input_data_2 == "?CAL,0")
+    {
+      Unit1->_phUnit->_isCalibrated = false;
+    }
     input_data_2 = "";
     input_data_done_2 = false;
   }
