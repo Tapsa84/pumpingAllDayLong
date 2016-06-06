@@ -18,6 +18,13 @@ void UnitController::unit_off() {
 
 }
 
+void UnitController::setSettings(Unit_Settings *unit_settings) {
+  this->unit_settings = unit_settings;
+  this->_phUnit->setTemp(this->unit_settings->setTemp);
+}
+  
+
+
 bool UnitController::timeStall() {
   if (millis() > this->lastPass + stall_time) {
     this->lastPass = millis();
@@ -49,13 +56,13 @@ float UnitController::getDummy_pH(void) {
 void UnitController::adjust_pH(PumpMotor *pump) {
 
   // eli iffin sisällöt tänne.
-  bool phTooHigh = this->dummy_pH < this->desired_pH - 0.1;
-  bool phTooLow = this->dummy_pH > this->desired_pH + 0.1;
+  bool phTooHigh = this->dummy_pH < this->unit_settings->desired_pH - 0.1;
+  bool phTooLow = this->dummy_pH > this->unit_settings->desired_pH + 0.1;
 
   if (this->pH_dir == up)
   {
 
-    bool increasePumpTime = this->dummy_pH < this->desired_pH - 0.1;
+    bool increasePumpTime = this->dummy_pH < this->unit_settings->desired_pH - 0.1;
 
 
     if (pump->rMode == pump->RunMode::Dosing)
@@ -112,7 +119,7 @@ void UnitController::adjust_pH(PumpMotor *pump) {
 
       if (pump->isOn())
       {
-        if (this->dummy_pH > this->desired_pH + 0.1) {
+        if (this->dummy_pH > this->unit_settings->desired_pH + 0.1) {
           if (pump->oncePerTime()) {
             this->lastPass = millis();
             this->lastPassA = millis();
@@ -124,7 +131,7 @@ void UnitController::adjust_pH(PumpMotor *pump) {
           }
         }
 
-        if (this->dummy_pH < this->desired_pH - 0.1) {
+        if (this->dummy_pH < this->unit_settings->desired_pH - 0.1) {
           if (pump->oncePerTime()) {
             this->lastPass = millis();
             this->lastPassA = millis();

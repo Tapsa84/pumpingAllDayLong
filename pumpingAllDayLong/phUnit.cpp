@@ -58,10 +58,12 @@ void phUnit::ContinousReadMode(char mode) {
   if (mode == '1') {
     this->serial->print("C,1");
     this->serial->print("\r");
+    this->_isReading = true;
   }
   if (mode == '0') {
     this->serial->print("C,0");
     this->serial->print("\r");
+    this->_isReading = false;
   }
 
   if (mode == '?') {

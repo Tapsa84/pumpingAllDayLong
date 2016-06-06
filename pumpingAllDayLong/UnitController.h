@@ -5,6 +5,12 @@
 #include "phUnit.h"
 
 
+struct Unit_Settings {
+    float desired_pH = 7;
+    float setTemp = 25;
+    int timeStall = 1000; 
+};
+
 class UnitController {
 
   private:
@@ -30,30 +36,23 @@ class UnitController {
 
     enum ph_Cal_state {init_mid,init_low,init_high, cal_mid, cal_low, cal_high, get_pH_mid, get_pH_low, get_pH_high};
     ph_Cal_state ph_cal_state = init_mid;
+      
     
-
-    phUnit *_phUnit;
-   
-    
-    float desired_pH =7;
     float dummy_pH = 8;
     float mid_pH = 7;
     float low_pH = 4;
     float high_pH = 10;
     PumpMotor *pumpA;
     PumpMotor *pumpB;
-
-    
-    
-    
-    
-
+    phUnit *_phUnit;
+    Unit_Settings *unit_settings;
 
     enum pHdirection {up, down};
     pHdirection pH_dir = up;
 
 
     UnitController(PumpMotor *pumpA, PumpMotor *pumpB, phUnit *_phUnit, String unit_name);
+    void setSettings(Unit_Settings *unit_settings);
     void calibrate_pump(PumpMotor *pump);
     void calibrate_phUnit(phUnit *phunit);
     void get_input();
