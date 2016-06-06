@@ -180,8 +180,8 @@ void UnitController::calibrate_phUnit(phUnit *phunit) {
       if (input_cmd != "") {
         this->mid_pH = this->input_cmd.toFloat();
         SerialUSB.println("Saving " + input_cmd + " as midpoint");
-        SerialUSB.println("Put the meter in the standard and type ok.");
-        SerialUSB.println("Once pH has stabilized type ok again.");
+        SerialUSB.println("Put the meter in the standard and once");
+        SerialUSB.println("the pH has stabilized, type ok.");
         input_cmd = "";
         phunit->ContinousReadMode('1');
         this->ph_cal_state = cal_mid;
@@ -210,8 +210,8 @@ void UnitController::calibrate_phUnit(phUnit *phunit) {
       if (input_cmd != "") {
         this->high_pH = this->input_cmd.toFloat();
         SerialUSB.println("Saving " + input_cmd + " as highpoint");
-        SerialUSB.println("Put the meter in the standard and type ok.");
-        SerialUSB.println("Once pH has stabilized type ok again.");
+        SerialUSB.println("Put the meter in the standard and once");
+        SerialUSB.println("the pH has stabilized, type ok.");
         input_cmd = "";
         phunit->ContinousReadMode('1');
         this->ph_cal_state = cal_high;
