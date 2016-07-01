@@ -71,7 +71,7 @@ void PumpMotor::on() {
   if (this->isRunning == false)
   {
     analogWrite(this->pwm_pin, _setPwm);
-    lastPass = millis();
+    this->lastPass = millis();
     this->isRunning = true;
   }
 
@@ -79,13 +79,13 @@ void PumpMotor::on() {
   {
     if (this->pump_settings->_setDir == 1)
     {
-      analogWrite(this->ena_pin, 1);
-      analogWrite(this->dir_pin, 0);
+      digitalWrite(this->ena_pin, 1);
+      digitalWrite(this->dir_pin, 0);
     }
     else
     {
-      analogWrite(this->ena_pin, 0);
-      analogWrite(this->dir_pin, 1);
+      digitalWrite(this->ena_pin, 0);
+      digitalWrite(this->dir_pin, 1);
     }
   }
 }
@@ -104,11 +104,11 @@ bool PumpMotor::isOn(void) {
 
 void PumpMotor::toggle() {
   if (this->isOn()) {
-    //Serial.println("pump off");
+    //SerialUSB.println("pump off");
     this->off();
   }
   else {
-    //Serial.println("pump on");
+   // SerialUSB.println("pump on");
     this->on();
   }
 
@@ -143,27 +143,6 @@ bool PumpMotor::air_out() {
 
 }
 
-bool PumpMotor::pump60sec(int pwm) {
-
-  get_input();
-
-  if (this->input_cal == "ok") {
-    SerialUSB.println("Starting to pump for 1 minute.");
-    this->setPwm(pwm);
-    this->on();
-    this->input_cal = "";
-
-  }
-  if (oncePerTime(10000)) {
-    this->off();
-    return true;
-  }
-}
-
-
-float getFlow() {
-
-}
 
 
 
@@ -173,9 +152,10 @@ bool PumpMotor::isCalib() {
 
 
 void PumpMotor::calflow() {
-  this->slope = (this->pump_settings->y2 - this->pump_settings->y1) / (220 - 20);
-  this->yintercept = this->pump_settings->y1 - (this->slope * 20);
+  this->slope = (this->pump_settings->y2 - this->pump_settings->y1) / (220 - 150);
+  this->yintercept = this->pump_settings->y1 - (this->slope * 150);
   this->_setPwm = (this->pump_settings->pump_flow - this->yintercept) / slope;
+  SerialUSB.println(_setPwm);
   this->isCalibrated = true;
 }
 
@@ -183,7 +163,7 @@ void PumpMotor::setPumpTime(int pump_time) {
   this->pump_time = pump_time;
 }
 
-bool PumpMotor::oncePerTime() {
+bool PumpMotor::oncePerTimePH() {
 
   if (millis() > this->lastPass + this->pump_time) {
     //this->lastPass = millis();
@@ -200,5 +180,4 @@ bool PumpMotor::oncePerTime(int _time) {
   }
   return false;
 }
-
 

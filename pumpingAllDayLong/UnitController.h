@@ -6,16 +6,16 @@
 
 
 struct Unit_Settings {
-    float desired_pH = 7;
+    float desired_pH = 8.5;
     float setTemp = 25;
-    int timeStall = 1000; 
+    int timeStall = 5500; 
 };
 
 class UnitController {
 
   private:
     String unit_name = "";
-    int stall_time = 1000UL;
+    
     
     int lastPassA = 0;
     
@@ -24,7 +24,7 @@ class UnitController {
   public:
 
     
-    
+    boolean stall_complete = true;
     String input_cmd = "";
     int lastPass = 0;
     String from_ph_meter = "";
@@ -51,7 +51,7 @@ class UnitController {
     pHdirection pH_dir = up;
 
 
-    UnitController(PumpMotor *pumpA, PumpMotor *pumpB, phUnit *_phUnit, String unit_name);
+    UnitController(PumpMotor *pumpA, PumpMotor *pumpB, phUnit *_phUnit, String unit_name, Unit_Settings *unit_settings);
     void setSettings(Unit_Settings *unit_settings);
     void calibrate_pump(PumpMotor *pump);
     void calibrate_phUnit(phUnit *phunit);
@@ -71,3 +71,4 @@ class UnitController {
 #endif
 
 
+   

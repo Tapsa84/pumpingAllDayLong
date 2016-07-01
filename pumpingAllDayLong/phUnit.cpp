@@ -26,6 +26,7 @@ void phUnit::calLow(float pH) {
   this->serial->print("Cal,low,");
   this->serial->print(pH);
   this->serial->print("\r");
+  this->_isCalibrated = true;
 }
 void phUnit::calHigh(float pH) {
   SerialUSB.print("Calibrating high with ");
@@ -33,6 +34,7 @@ void phUnit::calHigh(float pH) {
   this->serial->print("Cal,high,");
   this->serial->print(pH);
   this->serial->print("\r");
+  this->_isCalibrated = true;
 }
 
 void phUnit::setTemp(float _setTemp) {
@@ -96,7 +98,4 @@ bool phUnit::isCalibrated(void) {
   return this->_isCalibrated;
 
 }
-
-
-
 

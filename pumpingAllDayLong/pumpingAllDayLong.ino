@@ -42,7 +42,7 @@ PumpMotor *pumpB = new PumpMotor(pB_pwm, pB_dir, pB_ena);
 phUnit *phUnit1 = new phUnit(&Serial1);
 //phUnit *phUnit2 = new phUnit(&Serial2);
 
-UnitController *Unit1 = new UnitController(pumpA, pumpB, phUnit1, "Unit1");
+UnitController *Unit1 = new UnitController(pumpA, pumpB, phUnit1, "Unit1",unit1_settings);
 //UnitController *Unit2 = new UnitController(pumpC, pumpD, phUnit2, "Unit2");
 
 String input_data = "";
@@ -83,6 +83,15 @@ void setup() {
 
 
 
+
+  pumpA_settings->rMode = 0;
+  pumpB_settings->rMode = 1;
+  pumpA_settings->y1 = 17;
+  pumpA_settings->y2 = 28;
+  pumpB_settings->y1 = 23;
+  pumpB_settings->y2 = 41;
+  pumpB_settings->pump_flow = 23;
+
   Unit1->pumpA->setSettings(pumpA_settings);
   Unit1->pumpB->setSettings(pumpB_settings);
 
@@ -91,6 +100,8 @@ void setup() {
   SerialUSB.println("hyvin menee");
   Serial1.print(" ");
   delay(1000);
+  SerialUSB.print("PumpB pump time is: ");
+  SerialUSB.println(Unit1->pumpB->pump_time);
   //Serial1.print("C,0");
   //Serial1.print("\r");
 
@@ -98,6 +109,7 @@ void setup() {
 
   delay(500);
 
+  
   //saveSettings();
 
 }
@@ -135,9 +147,19 @@ void loop() {
       Unit1->_phUnit->_isReading = false;
     }
 
-    if (input_data_2 == "?CAL,0")
+    if (input_data_2 == "?CAL,1")
     {
-      Unit1->_phUnit->_isCalibrated = false;
+      Unit1->_phUnit->_isCalibrated = true;
+    }
+
+    if (input_data_2 == "?CAL,2")
+    {
+      Unit1->_phUnit->_isCalibrated = true;
+    }
+
+    if (input_data_2 == "?CAL,3")
+    {
+      Unit1->_phUnit->_isCalibrated = true;
     }
 
     if (input_data_2 == "*OK") {
@@ -184,14 +206,24 @@ boolean commandParse() {
     SerialUSB.println("DS_pH_sys_1");
   }
 
+  if(input_cmd == "PH"){
+    if(input_value != ""){
+      Unit1->unit_settings->desired_pH = input_value.toFloat();
+      SerialUSB.println(Unit1->unit_settings->desired_pH);
+      SerialUSB.println("I am Here!");
+    }
+  }
 
+  
   if (input_cmd == "U1") {
     if (input_value == "off") {
       Unit1->controller_state = Unit1->Controller_state::off;
       Unit1->unit_off();
-      Unit1->lastPass = millis();
+      Unit1->_phUnit->ContinousReadMode('0');
+      
     }
     if (input_value == "on") {
+      Unit1->_phUnit->ContinousReadMode('1');
       Unit1->controller_state = Unit1->Controller_state::on;
       Unit1->lastPass = millis();
     }
@@ -215,7 +247,7 @@ boolean commandParse() {
       Unit1->unit_off();
       if (Unit1->pumpA->isCalibrating == false) {
         Unit1->cal_state = Unit1->Cal_state::air;
-        Unit1->pumpA->isCalibrating = true;
+        Unit1->pumpB->isCalibrating = true;
         Unit1->controller_state = Unit1->Controller_state::off;
       }
       else {
@@ -270,11 +302,9 @@ boolean commandParse() {
     /*    if (input_value == "ok") {
           Unit1->input_cmd = input_value;
         }
-
         if (input_value == "stop") {
           Unit1->input_cmd = input_value;
         }
-
         if(input_value == "cancel") {
           Unit1->input_cmd = input_value;
        }*/
@@ -413,15 +443,4 @@ void getSettings() {
   memcpy(&pumpB_settings, b2, sizeof(Pump_Settings));
 
 }
-
-
-
-
-
-
-
-
-
-
-
 

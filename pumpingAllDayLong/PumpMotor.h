@@ -7,7 +7,7 @@ struct Pump_Settings {
  
       float y1 = 0;
       float y2 = 0;  
-      int pump_flow = 5;
+      int pump_flow = 17;
       int rMode = 0;
       int _setDir = 0;
 
@@ -31,11 +31,12 @@ class PumpMotor {
 
     int _setPwm = 0;
     int _setDir = 0;
-    int lastPass = 0;
+    
     int lastPassA = 0;
 
   public:
 
+    int lastPass = 0;
     bool isCalibrating = false;
     Pump_Settings *pump_settings;
     String input_cal = "";
@@ -43,7 +44,7 @@ class PumpMotor {
 
     
 
-    int pump_time = 1000UL;
+    int pump_time = 1000;
     enum RunMode {Continous, Dosing, Custom};
     RunMode rMode = Continous;
     
@@ -68,7 +69,7 @@ class PumpMotor {
     bool pump60sec(int pwm);
     void calflow();
     bool isCalib();
-    bool oncePerTime();
+    bool oncePerTimePH();
     bool oncePerTime(int _time);
     bool getOk();
     bool getOk(int pumptime);
@@ -77,4 +78,3 @@ class PumpMotor {
 };
 
 #endif
-
