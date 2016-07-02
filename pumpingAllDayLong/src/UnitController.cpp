@@ -4,7 +4,7 @@
 #include "PumpMotor.h"
 #include "HardwareSerial.h"
 
-UnitController::UnitController(PumpMotor *pumpA, PumpMotor *pumpB, phUnit *_phUnit, String unit_name, Unit_Settings *unit_settings) {
+UnitController::UnitController(PhAdjustingPumpController *pumpA, PhAdjustingPumpController *pumpB, phUnit *_phUnit, String unit_name, Unit_Settings *unit_settings) {
   this->pumpA = pumpA;
   this->pumpB = pumpB;
   this->_phUnit = _phUnit;
@@ -14,9 +14,8 @@ UnitController::UnitController(PumpMotor *pumpA, PumpMotor *pumpB, phUnit *_phUn
 }
 
 void UnitController::unit_off() {
-  this->pumpA->off();
-  this->pumpB->off();
-
+  this->pumpA->motor->off();
+  this->pumpB->motor->off();
 }
 
 void UnitController::setSettings(Unit_Settings *unit_settings) {
@@ -24,178 +23,25 @@ void UnitController::setSettings(Unit_Settings *unit_settings) {
   this->_phUnit->setTemp(this->unit_settings->setTemp);
 }
 
-
-
-bool UnitController::timeStall() {
-  if (millis() > this->lastPassA + this->unit_settings->timeStall) {
-    //this->lastPass = millis();
-    return true;
-  }
-  return false;
+void UnitController::setMeasuredPh(float measuredPh) {
+  this->pumpA->measuredPh = measuredPh;
+  this->pumpB->measuredPh = measuredPh;
 }
 
 void UnitController::start() {
-  if (this->pumpA->isOn()) {
+  if (this->pumpA->motor->isOn()) {
     return;
   }
   else {
-    this->pumpA->on();
+    this->pumpA->motor->on();
   }
-  if (this->pumpB->isOn()) {
+  if (this->pumpB->motor->isOn()) {
     return;
   }
   else {
-    this->pumpB->on();
+    this->pumpB->motor->on();
   }
 }
-
-float UnitController::getDummy_pH(void) {
-  return this->dummy_pH;
-}
-
-
-void UnitController::adjust_pH(PumpMotor *pump) {
-
-  // eli iffin sisällöt tänne.
-  //bool phTooHigh = this->dummy_pH < this->unit_settings->desired_pH - 0.1;
-  //bool phTooLow = this->dummy_pH > this->unit_settings->desired_pH + 0.1;
-
-  if (this->pH_dir == up)
-  {
-
-    if (pump->rMode == pump->RunMode::Dosing)
-    {
-
-      
-      
-      
-      //SerialUSB.println("Here I am! UP");
-      if (pump->isOn())
-      {
-        if (this->dummy_pH < this->unit_settings->desired_pH) {
-          if (pump->oncePerTimePH()) {
-            //this->lastPass = millis();
-            this->lastPassA = millis();
-            stall_complete = false;
-            
-            pump->toggle();
-
-
-          }
-        }
-
-        if (this->dummy_pH >= this->unit_settings->desired_pH + 0.05) {
-          if (pump->oncePerTimePH()) {
-          //this->lastPass = millis();
-          this->lastPassA = millis();
-          stall_complete = false;
-          pump->pump_time = pump->pump_time / 2;
-          //ph_area_found = true;
-          pump->toggle();
-          SerialUSB.println("pH is over limit while pumping");
-
-          }
-        }
-      }
-
-
-      
-      
-      if (!pump->isOn()) {
-        if (this->timeStall()) {
-          if (this->stall_complete == false) {
-            if (this->dummy_pH > this->unit_settings->desired_pH) {
-              pump->pump_time = pump->pump_time * 0.98;
-              this->stall_complete = true;
-              SerialUSB.println("pH over desired value, subtracting pump time");
-              SerialUSB.println(this->lastPassA - pump->lastPass);
-              SerialUSB.println(pump->pump_time);
-            }
-            if (this->dummy_pH < this->unit_settings->desired_pH) {
-              pump->pump_time = pump->pump_time * 1.02;
-              this->stall_complete = true;
-              SerialUSB.println("pH under desired value, adding more pump time");
-              SerialUSB.println(pump->pump_time);
-              }
-          }
-          // SerialUSB.println("Waiting 1 second to equiblirate");
-          if (this->dummy_pH <= this->unit_settings->desired_pH - 0.01) {
-            SerialUSB.println("Switching pump on");
-            pump->toggle();
-            this->lastPass = millis();
-          }
-
-        }
-      }
-    }
-    else
-    {
-      pump->on();
-
-    }
-  }
-
-  if (this->pH_dir == down)
-  {
-
-    if (pump->rMode == pump->RunMode::Dosing)
-    {
-
-      if (pump->isOn())
-      {
-        if (this->dummy_pH > this->unit_settings->desired_pH + 0.1) {
-          if (pump->oncePerTimePH()) {
-            this->lastPass = millis();
-            this->lastPassA = millis();
-            pump->pump_time = pump->pump_time * 1.1;
-            pump->toggle();
-            SerialUSB.println("pH under desired value, adding more pump time");
-            SerialUSB.println(pump->pump_time);
-
-          }
-        }
-
-        if (this->dummy_pH < this->unit_settings->desired_pH - 0.1) {
-          if (pump->oncePerTimePH()) {
-            this->lastPass = millis();
-            this->lastPassA = millis();
-            pump->pump_time = pump->pump_time * 0.9;
-            pump->toggle();
-            SerialUSB.println("pH over desired value, subtracting pump time");
-            SerialUSB.println(pump->pump_time);
-          }
-        }
-      }
-
-      if (!pump->isOn()) {
-        if (this->timeStall()) {
-          SerialUSB.println(millis() - this->lastPassA);
-          SerialUSB.println("Waiting 1 second to equiblirate");
-          if (this->dummy_pH > this->unit_settings->desired_pH + 0.1) {
-            pump->toggle();
-          }
-
-        }
-      }
-    }
-    else
-    {
-
-      pump->on();
-    }
-  }
-}
-
-
-void UnitController::get_input() {
-  if (SerialUSB.available() > 0) {
-    this->input_cmd = SerialUSB.readStringUntil('\n');
-  }
-}
-
-
-
-
 
 void UnitController::calibrate_phUnit(phUnit *phunit) {
 
@@ -424,112 +270,25 @@ void UnitController::calibrate_phUnit(phUnit *phunit) {
 
 }
 
-void UnitController::calibrate_pump(PumpMotor *pump) {
-
-
-
-
-  if (this->cal_state == air) {
-    if (input_cmd == "ok") {
-      SerialUSB.println("Starting to pump air out");
-      pump->setPwm(150);
-      pump->on();
-      input_cmd = "";
-    }
-    if (input_cmd == "stop") {
-      SerialUSB.println("Stopping pump");
-      pump->off();
-      input_cmd = "";
-      this->cal_state = pump1;
-    }
-  }
-
-  if (this->cal_state == pump1) {
-    if (input_cmd == "ok") {
-      SerialUSB.println("Starting to pump for 1 minute");
-      pump->setPwm(150);
-      pump->on();
-      input_cmd = "pump";
-
-    }
-    if (pump->oncePerTime(60000) && input_cmd == "pump") {
-      pump->off();
-      SerialUSB.println("Pumped for 1 minute,");
-      SerialUSB.println("please type the amount pumped.");
-      this->cal_state = getY1;
-      input_cmd = "";
-    }
-  }
-
-  if (this->cal_state == getY1) {
-    if (input_cmd != "") {
-      SerialUSB.println("Saving " + input_cmd + "ml to memory");
-      pump->pump_settings->y1 = input_cmd.toFloat();
-      input_cmd = "";
-      this->cal_state = pump2;
-    }
-  }
-
-  if (this->cal_state == pump2) {
-    if (input_cmd == "ok") {
-      SerialUSB.println("Starting to pump for 1 minute");
-      pump->setPwm(220);
-      pump->on();
-      input_cmd = "pump";
-    }
-    if (pump->oncePerTime(60000) && input_cmd == "pump") {
-      pump->off();
-      SerialUSB.println("Pumped for 1 minute, please type");
-      SerialUSB.println("the amount pumped.");
-      this->cal_state = getY2;
-      input_cmd = "";
-
-    }
-  }
-
-  if (this->cal_state == getY2) {
-    if (input_cmd != "") {
-      SerialUSB.println("Saving " + input_cmd + "ml to memory");
-      pump->pump_settings->y2 = input_cmd.toFloat();
-      this->cal_state = air;
-      pump->isCalibrating = false;
-      input_cmd = "";
-      pump->calflow();
+void UnitController::tick() {
+  if (this->controller_state == on) {
+    if (this->calCheck()) {
+      this->pumpA->adjustPh();
+      this->pumpB->adjustPh();
+    } else {
+      SerialUSB.println("Please check pump and pH calibration.");
+      this->controller_state = off;
       return;
     }
-  }
-
-}
-
-void UnitController::tick() {
-
-
-
-  if (this->controller_state == on)
-  {
-    if (this->calCheck())
-    {
-      this->adjust_pH(this->pumpA);
-      this->adjust_pH(this->pumpB);
-    }
-    else
-    {
-      if (this->timeStall()) {
-        SerialUSB.println("Please check pump and pH calibration.");
-        return;
-      }
-
-    }
-
   }
 
   if (this->controller_state == off)
   {
     if (this->pumpA->isCalibrating) {
-      this->calibrate_pump(pumpA);
+      this->pumpA->calibrate_pump();
     }
     if (this->pumpB->isCalibrating) {
-      this->calibrate_pump(pumpB);
+      this->pumpB->calibrate_pump();
     }
     if (this->_phUnit->isCalibratingHigh) {
       this->calibrate_phUnit(_phUnit);
@@ -572,7 +331,3 @@ bool UnitController::calCheck() {
     return false;
   }
 }
-
-
-
-

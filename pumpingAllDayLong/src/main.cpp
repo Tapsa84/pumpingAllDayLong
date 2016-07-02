@@ -23,6 +23,15 @@
 #define pD_ena 31
 
 
+struct Pump_Settings {
+
+      float y1 = 0;
+      float y2 = 0;
+      int pump_flow = 17;
+      int rMode = 0;
+      int _setDir = 0;
+
+};
 
 DueFlashStorage dueFlashStorage;
 
@@ -34,6 +43,7 @@ Unit_Settings *unit1_settings = new Unit_Settings;
 
 PumpMotor *pumpA = new PumpMotor(pA_pwm, pA_dir, pA_ena);
 PumpMotor *pumpB = new PumpMotor(pB_pwm, pB_dir, pB_ena);
+
 //PumpMotor *pumpC = new PumpMotor(pC_pwm, pC_dir, pC_ena);
 //PumpMotor *pumpD = new PumpMotor(pD_pwm, pD_dir, pD_ena);
 
@@ -42,7 +52,11 @@ PumpMotor *pumpB = new PumpMotor(pB_pwm, pB_dir, pB_ena);
 phUnit *phUnit1 = new phUnit(&Serial1);
 //phUnit *phUnit2 = new phUnit(&Serial2);
 
-UnitController *Unit1 = new UnitController(pumpA, pumpB, phUnit1, "Unit1",unit1_settings);
+PhAdjustingPumpController *pcA = new PhAdjustingPumpController(pumpA);
+PhAdjustingPumpController *pcB = new PhAdjustingPumpController(pumpB);
+
+
+UnitController *Unit1 = new UnitController(pcA, pcB, phUnit1, "Unit1", unit1_settings);
 //UnitController *Unit2 = new UnitController(pumpC, pumpD, phUnit2, "Unit2");
 
 String input_data = "";
@@ -92,98 +106,47 @@ void setup() {
   pumpB_settings->y2 = 41;
   pumpB_settings->pump_flow = 23;
 
-  Unit1->pumpA->setSettings(pumpA_settings);
-  Unit1->pumpB->setSettings(pumpB_settings);
+  // int rMode, float y1, float y2, int _setDir
+  Unit1->pumpA->setSettings(pumpA_settings->rMode, pumpA_settings->y1, pumpA_settings->y2, pumpA_settings->_setDir, pumpA_settings->pump_flow);
+  Unit1->pumpB->setSettings(pumpB_settings->rMode, pumpB_settings->y1, pumpB_settings->y2, pumpB_settings->_setDir, pumpB_settings->pump_flow);
 
 
 
   SerialUSB.println("hyvin menee");
   Serial1.print(" ");
-  delay(1000);
-  SerialUSB.print("PumpB pump time is: ");
-  SerialUSB.println(Unit1->pumpB->pump_time);
-  //Serial1.print("C,0");
-  //Serial1.print("\r");
-
-  //Unit1->pumpA->pump_settings->pump_flow = 100;
-
-  delay(500);
-
-  
-  //saveSettings();
-
-}
-
-void loop() {
-
-  Unit1->tick();
-  //Unit2->tick();
-
-  serialEventUSB();
-
-  if (input_data_done) {
-
-    //Serial.print(input_data);
-    commandParse();
-    input_data = "";
-    input_cmd = "";
-    input_value = "";
-    input_data_done = false;
-  }
-
-  if (input_data_done_2) {
-
-    //Serial.print(input_data);
-    //commandParse();
-    SerialUSB.println(input_data_2);
-
-    if (input_data_2 == "?C,1")
-    {
-      Unit1->_phUnit->_isReading = true;
-    }
-
-    if (input_data_2 == "?C,0")
-    {
-      Unit1->_phUnit->_isReading = false;
-    }
-
-    if (input_data_2 == "?CAL,1")
-    {
-      Unit1->_phUnit->_isCalibrated = true;
-    }
-
-    if (input_data_2 == "?CAL,2")
-    {
-      Unit1->_phUnit->_isCalibrated = true;
-    }
-
-    if (input_data_2 == "?CAL,3")
-    {
-      Unit1->_phUnit->_isCalibrated = true;
-    }
-
-    if (input_data_2 == "*OK") {
-      //do nothing
-    }
-
-    else if (Unit1->_phUnit->_isReading == true)
-    {
-      Unit1->dummy_pH = input_data_2.toFloat();
-    }
-
-    
-    input_data_2 = "";
-    input_data_done_2 = false;
-  }
-
+  delay(1500);
 }
 
 
+void getSettings() {
+  //Asetusten hakeminen pumpuille
+  byte* b = dueFlashStorage.readAddress(4); //pumppu A:n osoite
 
+  memcpy(&pumpA_settings, b, sizeof(Pump_Settings));
+
+  byte* b2 = dueFlashStorage.readAddress(28); //pumppu B:n osoite
+
+  memcpy(&pumpB_settings, b2, sizeof(Pump_Settings));
+
+}
+
+void saveSettings(int i) {
+
+
+  if (i == 0) {
+    SerialUSB.println("Saving pumpA settings to flash.");
+    byte b2[sizeof(Pump_Settings)];
+    memcpy(b2, &pumpA_settings, sizeof(Pump_Settings));
+    dueFlashStorage.write(4, b2, sizeof(Pump_Settings));
+
+    SerialUSB.println("Saving pumpB settings to flash.");
+    byte b3[sizeof(Pump_Settings)];
+    memcpy(b2, &pumpB_settings, sizeof(Pump_Settings));
+    dueFlashStorage.write(28, b2, sizeof(Pump_Settings));
+  }
+}
 
 boolean commandParse() {
-
-
   int semicolon = input_data.indexOf(':');
   int lastchar = input_data.indexOf('\n');
 
@@ -214,13 +177,13 @@ boolean commandParse() {
     }
   }
 
-  
+
   if (input_cmd == "U1") {
     if (input_value == "off") {
       Unit1->controller_state = Unit1->Controller_state::off;
       Unit1->unit_off();
       Unit1->_phUnit->ContinousReadMode('0');
-      
+
     }
     if (input_value == "on") {
       Unit1->_phUnit->ContinousReadMode('1');
@@ -235,7 +198,7 @@ boolean commandParse() {
     if (input_value == "pA_cal") {
       Unit1->unit_off();
       if (Unit1->pumpB->isCalibrating == false) {
-        Unit1->cal_state = Unit1->Cal_state::air;
+        Unit1->pumpA->cal_state = Unit1->pumpA->Cal_state::air;
         Unit1->pumpA->isCalibrating = true;
         Unit1->controller_state = Unit1->Controller_state::off;
       }
@@ -246,7 +209,7 @@ boolean commandParse() {
     if (input_value == "pB_cal") {
       Unit1->unit_off();
       if (Unit1->pumpA->isCalibrating == false) {
-        Unit1->cal_state = Unit1->Cal_state::air;
+        Unit1->pumpB->cal_state = Unit1->pumpB->Cal_state::air;
         Unit1->pumpB->isCalibrating = true;
         Unit1->controller_state = Unit1->Controller_state::off;
       }
@@ -340,10 +303,7 @@ boolean commandParse() {
     }
   }
 
-  if (input_cmd == "U1_pA_y1") {
-    Unit1->pumpA->input_cal_value = input_value;
-
-  }
+  
 }
 
 void serialEventUSB() {
@@ -384,7 +344,6 @@ void serialEvent1() {
   }
 }
 
-
 void codeRunningForTheFirstTime() {
 
   uint8_t codeRunningForTheFirstTime = dueFlashStorage.read(0); // luetaan flash osoitteesta 0
@@ -414,33 +373,66 @@ void codeRunningForTheFirstTime() {
   }
 }
 
-void saveSettings(int i) {
+void loop() {
 
+  Unit1->tick();
+  //Unit2->tick();
 
-  if (i == 0) {
-    SerialUSB.println("Saving pumpA settings to flash.");
-    byte b2[sizeof(Pump_Settings)];
-    memcpy(b2, &pumpA_settings, sizeof(Pump_Settings));
-    dueFlashStorage.write(4, b2, sizeof(Pump_Settings));
+  serialEventUSB();
 
-    SerialUSB.println("Saving pumpB settings to flash.");
-    byte b3[sizeof(Pump_Settings)];
-    memcpy(b2, &pumpB_settings, sizeof(Pump_Settings));
-    dueFlashStorage.write(28, b2, sizeof(Pump_Settings));
+  if (input_data_done) {
+
+    //Serial.print(input_data);
+    commandParse();
+    input_data = "";
+    input_cmd = "";
+    input_value = "";
+    input_data_done = false;
   }
 
+  if (input_data_done_2) {
+
+    //Serial.print(input_data);
+    //commandParse();
+    SerialUSB.println(input_data_2);
+
+    if (input_data_2 == "?C,1")
+    {
+      Unit1->_phUnit->_isReading = true;
+    }
+
+    if (input_data_2 == "?C,0")
+    {
+      Unit1->_phUnit->_isReading = false;
+    }
+
+    if (input_data_2 == "?CAL,1")
+    {
+      Unit1->_phUnit->_isCalibrated = true;
+    }
+
+    if (input_data_2 == "?CAL,2")
+    {
+      Unit1->_phUnit->_isCalibrated = true;
+    }
+
+    if (input_data_2 == "?CAL,3")
+    {
+      Unit1->_phUnit->_isCalibrated = true;
+    }
+
+    if (input_data_2 == "*OK") {
+      //do nothing
+    }
+
+    else if (Unit1->_phUnit->_isReading == true)
+    {
+      Unit1->setMeasuredPh(input_data_2.toFloat());
+    }
+
+
+    input_data_2 = "";
+    input_data_done_2 = false;
+  }
 
 }
-
-void getSettings() {
-  //Asetusten hakeminen pumpuille
-  byte* b = dueFlashStorage.readAddress(4); //pumppu A:n osoite
-
-  memcpy(&pumpA_settings, b, sizeof(Pump_Settings));
-
-  byte* b2 = dueFlashStorage.readAddress(28); //pumppu B:n osoite
-
-  memcpy(&pumpB_settings, b2, sizeof(Pump_Settings));
-
-}
-
